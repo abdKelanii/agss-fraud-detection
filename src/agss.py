@@ -1,17 +1,23 @@
 """
 Adaptive Generative Synthetic Sampling (AGSS)
 
-Implements the oversampling algorithm from:
+Implements both the oversampling and undersampling variants from:
   Nama & Sharmila Banu, "Credit Card Fraud Detection Using Deep Learning
   Techniques and Handling Unbalanced Class Distributions With AGSS",
   IEEE Access, Jan 2026.
 
-Algorithm (Section IV.A):
+Oversampling algorithm (Section IV.A):
   1. Extract minority class samples
   2. Cluster with DBSCAN (eps=0.8, min_samples=3)
   3. Within each dense cluster, generate synthetic points via KNN + curvature interpolation:
        x_syn = p + alpha*(q-p) + gamma*sin(theta)*perp(q-p)
   4. Combine with original data
+
+Undersampling variant (AGSSUnderSampler):
+  1. Apply DBSCAN to the majority class
+  2. Remove noisy/outlier majority samples (DBSCAN label == -1)
+  3. Randomly subsample remaining clustered majority points down to n_minority
+  4. Combine with original minority class
 """
 
 import numpy as np
@@ -126,6 +132,54 @@ class AGSS:
 
         X_out = np.vstack([X, X_syn]).astype(X.dtype)
         y_out = np.concatenate([y, y_syn])
+        return X_out, y_out
+
+
+class AGSSUnderSampler:
+    """
+    AGSS undersampling: cluster the majority class with DBSCAN, discard noise
+    points, then subsample clustered majority points down to n_minority.
+    """
+
+    def __init__(self, eps=0.8, min_samples=3, random_state=42, adaptive_eps=True):
+        self.eps = eps
+        self.min_samples = min_samples
+        self.random_state = random_state
+        self.adaptive_eps = adaptive_eps
+
+    def _choose_eps(self, X_maj):
+        k = min(self.min_samples, len(X_maj) - 1)
+        nbrs = NearestNeighbors(n_neighbors=k + 1).fit(X_maj)
+        dists, _ = nbrs.kneighbors(X_maj)
+        return float(np.percentile(dists[:, k], 25))
+
+    def fit_resample(self, X, y):
+        rng = np.random.default_rng(self.random_state)
+        X_maj, X_min = X[y == 0], X[y == 1]
+        n_target = len(X_min)
+
+        eps = self.eps
+        labels = DBSCAN(eps=eps, min_samples=self.min_samples).fit_predict(X_maj)
+
+        if len(set(labels) - {-1}) < 1 and self.adaptive_eps:
+            eps = self._choose_eps(X_maj)
+            print(f"AGSSUnder: adaptive eps={eps:.3f}")
+            labels = DBSCAN(eps=eps, min_samples=self.min_samples).fit_predict(X_maj)
+
+        X_maj_clean = X_maj[labels != -1]
+
+        if len(X_maj_clean) == 0:
+            idx = rng.choice(len(X_maj), size=n_target, replace=False)
+            X_maj_clean = X_maj[idx]
+        elif len(X_maj_clean) > n_target:
+            idx = rng.choice(len(X_maj_clean), size=n_target, replace=False)
+            X_maj_clean = X_maj_clean[idx]
+
+        X_out = np.vstack([X_maj_clean, X_min]).astype(X.dtype)
+        y_out = np.concatenate([
+            np.zeros(len(X_maj_clean), dtype=y.dtype),
+            np.ones(len(X_min), dtype=y.dtype),
+        ])
         return X_out, y_out
 
 

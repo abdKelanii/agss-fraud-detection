@@ -245,6 +245,87 @@ def fig_phase1_lstm_rnn_f1():
     print(f"Saved: {out}")
 
 
+def fig_under_german(path):
+    if not os.path.exists(path):
+        print(f"Skipping German undersampling chart — {path} not found.")
+        return
+    df = pd.read_csv(path)
+    samplers = df["sampler"].unique().tolist()
+    models   = df["model"].unique().tolist()
+    x = np.arange(len(samplers))
+    width = 0.35
+    model_colors = {"RNN": "#E74C3C", "LSTM": "#3498DB"}
+
+    fig, ax = plt.subplots(figsize=(10, 5))
+    for i, model in enumerate(models):
+        vals = [df[(df["model"] == model) & (df["sampler"] == s)]["f1_good"].values[0]
+                for s in samplers]
+        offset = (i - (len(models) - 1) / 2) * width
+        bars = ax.bar(x + offset, vals, width, label=model,
+                      color=model_colors.get(model, "#95A5A6"),
+                      edgecolor="white", linewidth=0.5)
+        for bar, v in zip(bars, vals):
+            ax.text(bar.get_x() + bar.get_width() / 2, v + 0.003,
+                    f"{v:.3f}", ha="center", va="bottom", fontsize=8, fontweight="bold")
+
+    ax.axhline(0.8601, color="darkred", linestyle=":", linewidth=1.2,
+               label="Paper RNN+AGSS under (0.8601)")
+    ax.set_xticks(x)
+    ax.set_xticklabels(samplers, fontsize=11)
+    ax.set_ylim(0.68, 0.90)
+    ax.set_ylabel("F1-score (good credit class)", fontsize=11)
+    ax.set_title("Phase 2 — German Undersampling: F1 by Model & Sampler\n(5-fold CV, threshold=0.8)",
+                 fontsize=11, fontweight="bold")
+    ax.legend(fontsize=9)
+    ax.yaxis.grid(True, linestyle="--", alpha=0.5)
+    ax.set_axisbelow(True)
+    plt.tight_layout()
+    out = os.path.join(RESULTS_DIR, "fig_under_german.png")
+    plt.savefig(out, dpi=150)
+    plt.close()
+    print(f"Saved: {out}")
+
+
+def fig_under_creditcard(path):
+    if not os.path.exists(path):
+        print(f"Skipping creditcard undersampling chart — {path} not found.")
+        return
+    df = pd.read_csv(path)
+    samplers = df["sampler"].unique().tolist()
+    models   = df["model"].unique().tolist()
+    x = np.arange(len(samplers))
+    width = 0.35
+    model_colors = {"LSTM": "#3498DB", "RNN": "#E74C3C"}
+
+    fig, ax = plt.subplots(figsize=(10, 5))
+    for i, model in enumerate(models):
+        vals = [df[(df["model"] == model) & (df["sampler"] == s)]["roc_auc"].values[0]
+                for s in samplers]
+        offset = (i - (len(models) - 1) / 2) * width
+        bars = ax.bar(x + offset, vals, width, label=model,
+                      color=model_colors.get(model, "#95A5A6"),
+                      edgecolor="white", linewidth=0.5)
+        for bar, v in zip(bars, vals):
+            ax.text(bar.get_x() + bar.get_width() / 2, v + 0.002,
+                    f"{v:.3f}", ha="center", va="bottom", fontsize=8, fontweight="bold")
+
+    ax.set_xticks(x)
+    ax.set_xticklabels(samplers, fontsize=11)
+    ax.set_ylim(0.80, 1.00)
+    ax.set_ylabel("ROC-AUC", fontsize=11)
+    ax.set_title("Phase 1 — Creditcard Undersampling: ROC-AUC by Model & Sampler\n"
+                 "(5-fold CV — ROC-AUC used as F1 is unreliable at 1:1 subsampling ratio)",
+                 fontsize=10, fontweight="bold")
+    ax.legend(fontsize=9)
+    ax.yaxis.grid(True, linestyle="--", alpha=0.5)
+    ax.set_axisbelow(True)
+    plt.tight_layout()
+    out = os.path.join(RESULTS_DIR, "fig_under_creditcard.png")
+    plt.savefig(out, dpi=150)
+    plt.close()
+    print(f"Saved: {out}")
+
+
 if __name__ == "__main__":
     df = load()
     fig_metrics_bar(df)
@@ -255,5 +336,8 @@ if __name__ == "__main__":
     german_path = os.path.join(RESULTS_DIR, "phase2_german_final.csv")
     fig_german_f1_bar(german_path)
     fig_german_f1_heatmap(german_path)
+
+    fig_under_german(os.path.join(RESULTS_DIR, "phase2_under_german.csv"))
+    fig_under_creditcard(os.path.join(RESULTS_DIR, "phase1_under_creditcard.csv"))
 
     print("\nAll visualizations saved to results/")

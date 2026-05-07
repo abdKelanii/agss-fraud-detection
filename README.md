@@ -58,6 +58,40 @@ Paper reports RNN+AGSS F1 = **0.8489** → We reproduced **~0.83–0.84** ✅
 
 > **Metric note:** The paper reports F1 for the majority class (good credit = class 0) on the German dataset, not the minority class. This was confirmed by back-calculating from the paper's reported accuracy and F1 values.
 
+### Phase 1 — Credit Card Dataset (Undersampling, LSTM & RNN)
+
+| Model | Sampler | Accuracy | Precision | Recall | F1 | ROC-AUC |
+|-------|---------|----------|-----------|--------|----|---------|
+| LSTM | RUS | 0.9751 | 0.0593 | 0.8882 | 0.1111 | 0.9752 |
+| LSTM | TomekLinks | 0.9852 | 0.1019 | 0.9004 | 0.1823 | 0.9743 |
+| LSTM | ENN | 0.9886 | 0.1378 | 0.8861 | 0.2353 | 0.9716 |
+| LSTM | NearMiss | 0.8767 | 0.0119 | 0.8456 | 0.0235 | 0.8819 |
+| LSTM | AGSS | 0.9344 | 0.0239 | 0.9187 | 0.0465 | 0.9761 |
+| RNN | RUS | 0.9736 | 0.0585 | 0.9045 | 0.1096 | 0.9787 |
+| RNN | TomekLinks | 0.9727 | 0.0591 | 0.9146 | 0.1107 | 0.9841 |
+| RNN | ENN | 0.9668 | 0.0521 | 0.9207 | 0.0977 | 0.9828 |
+| RNN | NearMiss | 0.7630 | 0.0065 | 0.9004 | 0.0130 | 0.9395 |
+| RNN | AGSS | 0.8999 | 0.0163 | 0.9329 | 0.0321 | 0.9762 |
+
+> **Note:** Creditcard undersampling F1 is low across all methods because 1:1 balancing leaves only ~984 training samples, causing the model to over-predict fraud on the 0.17%-imbalanced test set (high recall, very low precision). The paper reports LSTM+AGSS F1=**0.8636** — the gap suggests the paper uses a less aggressive undersampling ratio or a higher decision threshold.
+
+### Phase 2 — German Credit-Risk Dataset (Undersampling, RNN & LSTM)
+
+| Model | Sampler | Accuracy | F1 (good class) | F1 (bad class) | ROC-AUC |
+|-------|---------|----------|-----------------|----------------|---------|
+| **RNN** | **TomekLinks** | 0.7350 | **0.8328** | 0.3571 | 0.7423 |
+| RNN | RUS | 0.7280 | 0.8298 | 0.3205 | 0.7362 |
+| RNN | AGSS | 0.7180 | 0.8145 | 0.4061 | 0.6994 |
+| RNN | ENN | 0.7230 | 0.8006 | 0.5445 | 0.7341 |
+| RNN | NearMiss | 0.6820 | 0.7926 | 0.3131 | 0.6341 |
+| LSTM | TomekLinks | 0.7410 | 0.8297 | 0.4555 | 0.7229 |
+| LSTM | RUS | 0.7380 | 0.8287 | 0.4419 | 0.7125 |
+| LSTM | ENN | 0.6940 | 0.7725 | 0.5320 | 0.7130 |
+| LSTM | AGSS | 0.6470 | 0.7309 | 0.4791 | 0.6591 |
+| LSTM | NearMiss | 0.6340 | 0.7333 | 0.4109 | 0.6264 |
+
+Paper reports RNN+AGSS undersampling F1 = **0.8601** → We reproduced **0.8145** (~4.5% gap, consistent with oversampling gap)
+
 ---
 
 ## Experimental Note
