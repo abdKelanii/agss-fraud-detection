@@ -1,0 +1,10 @@
+{
+  "hidden_size": 32,
+  "epochs": 200,
+  "lr": 0.0005,
+  "model": "RNN",
+  "sampler": "SMOTE",
+  "best_f1": 0.8356164383561644,
+  "best_threshold": 0.8,
+  "roc_auc": 0.7401666666666666
+}

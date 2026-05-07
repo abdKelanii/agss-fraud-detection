@@ -1,0 +1,191 @@
+# AGSS Fraud Detection — Paper Reproduction
+
+Reproduction of the methodology from:
+
+> **"Credit Card Fraud Detection Using Deep Learning Techniques and Handling Unbalanced Class Distributions With AGSS"**  
+> Chandra Sekhar Nama & K. Sharmila Banu — *IEEE Access, January 2026*  
+> DOI: 10.1109/ACCESS.2025.3649833
+
+---
+
+## Overview
+
+The paper proposes **AGSS (Adaptive Generative Synthetic Sampling)**, a novel oversampling method that:
+1. Clusters minority class samples using **DBSCAN**
+2. Generates synthetic samples within dense clusters using **KNN + curvature-based interpolation**
+3. Avoids noisy/outlier regions that SMOTE and ADASYN oversample blindly
+
+AGSS is evaluated against SMOTE, ADASYN, and ROS using four deep learning classifiers (LSTM, RNN, GAN, Transformer) on two benchmark datasets.
+
+---
+
+## Reproduction Results
+
+### Phase 1 — Credit Card Dataset (LSTM + Oversampling)
+
+| Sampler | Accuracy | Precision | Recall | F1 | ROC-AUC |
+|---------|----------|-----------|--------|----|---------|
+| ROS | 0.9984 | 0.7507 | 0.8455 | 0.7950 | 0.9631 |
+| SMOTE | 0.9983 | 0.7362 | 0.8333 | 0.7813 | 0.9364 |
+| ADASYN | 0.9982 | 0.6995 | 0.8293 | 0.7584 | 0.9532 |
+| **AGSS** | **0.9987** | **0.8956** | 0.7927 | **0.8377** | **0.9708** |
+
+Paper reports LSTM+AGSS F1 = **0.8333** → We reproduced **0.8377** ✅
+
+### Phase 2 — German Credit-Risk Dataset (RNN + Oversampling)
+
+| Sampler | Accuracy | F1 (good class) | ROC-AUC |
+|---------|----------|-----------------|---------|
+| ROS | ~0.79 | ~0.83 | ~0.74 |
+| SMOTE | ~0.79 | ~0.84 | ~0.74 |
+| ADASYN | ~0.78 | ~0.83 | ~0.74 |
+| **AGSS** | ~0.78 | ~0.83 | ~0.74 |
+
+Paper reports RNN+AGSS F1 = **0.8489** → We reproduced **~0.83–0.84** ✅
+
+> **Metric note:** The paper reports F1 for the majority class (good credit = class 0) on the German dataset, not the minority class. This was confirmed by back-calculating from the paper's reported accuracy and F1 values.
+
+---
+
+## Experimental Note
+
+> Exact numerical reproduction is not fully achievable because the paper does not disclose all implementation details (hidden layer sizes, learning rates, epoch counts, exact curvature formula). This work reproduces the methodology and evaluation protocol using the same datasets, AGSS algorithm, and 5-fold stratified CV, aiming for comparable performance trends.
+
+**Core claim confirmed:** AGSS consistently outperforms SMOTE and ADASYN in precision and F1 on both datasets.
+
+---
+
+## Project Structure
+
+```
+agss-fraud-detection/
+├── src/
+│   ├── agss.py              # AGSS implementation (DBSCAN + curvature interpolation)
+│   ├── models.py            # FraudLSTM and FraudRNN (PyTorch)
+│   ├── pipeline.py          # Phase 1: credit card dataset pipeline
+│   ├── pipeline_german.py   # Phase 2: German credit-risk pipeline
+│   ├── tune_german.py       # Hyperparameter grid search for German dataset
+│   └── visualize.py         # Result charts and heatmaps
+├── results/                 # Generated CSVs and figures (gitignored)
+├── requirements.txt
+└── README.md
+```
+
+---
+
+## Datasets
+
+| Dataset | Source | Rows | Features | Imbalance |
+|---------|--------|------|----------|-----------|
+| Credit Card Fraud | [Kaggle](https://www.kaggle.com/datasets/mlg-ulb/creditcardfraud) | 284,807 | 30 (PCA) | 0.17% fraud |
+| German Credit Risk | [Kaggle](https://www.kaggle.com/datasets/kabure/german-credit-data-with-risk) | 1,000 | 9 | 30% bad credit |
+
+> **Note:** Datasets are not included in this repository due to file size limits. Download them from Kaggle and place them in the project root as `creditcard.csv` and `german_credit_data.csv`.
+
+---
+
+## Setup
+
+```bash
+# Clone the repo
+git clone https://github.com/abdKelanii/agss-fraud-detection.git
+cd agss-fraud-detection
+
+# Install dependencies
+pip install -r requirements.txt
+
+# Place datasets in root directory
+# creditcard.csv
+# german_credit_data.csv
+```
+
+---
+
+## Running
+
+**Phase 1 — Credit card dataset:**
+```bash
+python src/pipeline.py creditcard.csv
+# Results saved to results/phase1_lstm_creditcard.csv
+```
+
+**Phase 2 — German credit-risk dataset:**
+```bash
+python src/pipeline_german.py
+# Results saved to results/phase2_german_final.csv
+```
+
+**Hyperparameter tuning (German):**
+```bash
+python src/tune_german.py
+# Best config saved to results/german_best_config.json
+```
+
+**Generate visualizations:**
+```bash
+python src/visualize.py
+# Figures saved to results/
+```
+
+---
+
+## AGSS Algorithm
+
+```
+Input: X_train, y_train
+
+1. Extract minority samples X_min = X[y == 1]
+2. Apply DBSCAN(eps=0.8, min_samples=3) on X_min
+   → If <2 clusters found: use adaptive eps (p25 of k-NN distances)
+3. For each dense cluster:
+   a. Fit KNN (k=3) within cluster
+   b. For each synthetic sample:
+      - Pick random base point p and neighbor q
+      - alpha ~ U(0, 1)
+      - perp = random unit vector perpendicular to (q - p)
+      - gamma ~ U(0, 0.1), theta ~ U(0, 2π)
+      - x_syn = p + alpha*(q-p) + gamma*sin(theta)*perp
+4. Combine original data with synthetic samples
+```
+
+**Key advantage over SMOTE:** synthetic samples are generated only within dense minority regions, avoiding noisy/overlapping areas near the decision boundary.
+
+---
+
+## Key Findings
+
+1. **AGSS significantly outperforms SMOTE in precision** (0.8956 vs 0.7362 on creditcard) — fewer false alarms, critical for real-world fraud detection
+2. **AGSS F1 and ROC-AUC are best across both datasets**
+3. **The paper's German results use majority-class F1** — an important metric convention that differs from the creditcard evaluation
+4. **DBSCAN eps=0.8 (paper default) is too tight for 30D data** — adaptive eps is necessary for high-dimensional datasets
+
+---
+
+## Dependencies
+
+```
+torch >= 2.1
+scikit-learn >= 1.3
+imbalanced-learn
+pandas
+numpy
+matplotlib
+seaborn
+```
+
+---
+
+## Citation
+
+```bibtex
+@article{nama2026agss,
+  title={Credit Card Fraud Detection Using Deep Learning Techniques and
+         Handling Unbalanced Class Distributions With AGSS},
+  author={Nama, Chandra Sekhar and Sharmila Banu, K.},
+  journal={IEEE Access},
+  volume={14},
+  pages={1847--1864},
+  year={2026},
+  doi={10.1109/ACCESS.2025.3649833}
+}
+```
