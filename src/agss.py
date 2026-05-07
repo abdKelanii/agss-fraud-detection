@@ -124,7 +124,7 @@ class AGSS:
         X_syn = np.array(synthetic)
         y_syn = np.ones(len(X_syn), dtype=y.dtype)
 
-        X_out = np.vstack([X, X_syn])
+        X_out = np.vstack([X, X_syn]).astype(X.dtype)
         y_out = np.concatenate([y, y_syn])
         return X_out, y_out
 

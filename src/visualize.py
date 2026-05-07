@@ -1,0 +1,216 @@
+"""
+Generate Phase 1 & 2 visualizations from saved results.
+Produces:
+  results/fig_metrics_bar.png        — Phase 1 grouped bar chart
+  results/fig_f1_heatmap.png         — Phase 1 F1 heatmap
+  results/fig_precision_recall.png   — Phase 1 Precision vs Recall scatter
+  results/fig_german_f1_bar.png      — Phase 2 F1 bar chart (good-class F1 per model+sampler)
+  results/fig_german_f1_heatmap.png  — Phase 2 F1 heatmap (model × sampler)
+"""
+
+import os
+import pandas as pd
+import matplotlib.pyplot as plt
+import matplotlib.patches as mpatches
+import numpy as np
+
+RESULTS_DIR = os.path.join(os.path.dirname(__file__), "..", "results")
+CSV_PATH    = os.path.join(RESULTS_DIR, "phase1_lstm_creditcard.csv")
+
+COLORS = {
+    "ROS":    "#5B9BD5",
+    "SMOTE":  "#ED7D31",
+    "ADASYN": "#A9D18E",
+    "AGSS":   "#FF0000",
+}
+
+def load():
+    df = pd.read_csv(CSV_PATH, index_col="sampler")
+    return df
+
+
+def fig_metrics_bar(df):
+    metrics = ["accuracy", "precision", "recall", "f1", "roc_auc"]
+    labels  = ["Accuracy", "Precision", "Recall", "F1-score", "ROC-AUC"]
+    samplers = df.index.tolist()
+    x = np.arange(len(metrics))
+    width = 0.18
+    offsets = np.linspace(-(len(samplers)-1)/2, (len(samplers)-1)/2, len(samplers)) * width
+
+    fig, ax = plt.subplots(figsize=(12, 5))
+    for i, sampler in enumerate(samplers):
+        vals = [df.loc[sampler, m] for m in metrics]
+        bars = ax.bar(x + offsets[i], vals, width, label=sampler,
+                      color=COLORS[sampler], edgecolor="white", linewidth=0.5)
+
+    ax.set_xticks(x)
+    ax.set_xticklabels(labels, fontsize=11)
+    ax.set_ylim(0.65, 1.01)
+    ax.set_ylabel("Score", fontsize=11)
+    ax.set_title("LSTM — Oversampling Method Comparison (creditcard, 5-fold CV)",
+                 fontsize=12, fontweight="bold")
+    ax.legend(title="Sampler", fontsize=10)
+    ax.yaxis.grid(True, linestyle="--", alpha=0.6)
+    ax.set_axisbelow(True)
+
+    # Annotate F1 bars for AGSS and SMOTE
+    for i, sampler in enumerate(samplers):
+        f1_val = df.loc[sampler, "f1"]
+        bar_x  = x[3] + offsets[i]
+        ax.text(bar_x, f1_val + 0.003, f"{f1_val:.3f}",
+                ha="center", va="bottom", fontsize=7.5, fontweight="bold")
+
+    plt.tight_layout()
+    out = os.path.join(RESULTS_DIR, "fig_metrics_bar.png")
+    plt.savefig(out, dpi=150)
+    plt.close()
+    print(f"Saved: {out}")
+
+
+def fig_precision_recall(df):
+    fig, ax = plt.subplots(figsize=(7, 5))
+    for sampler in df.index:
+        prec = df.loc[sampler, "precision"]
+        rec  = df.loc[sampler, "recall"]
+        f1   = df.loc[sampler, "f1"]
+        color = COLORS[sampler]
+        size  = 300 if sampler == "AGSS" else 160
+        ax.scatter(rec, prec, s=size, color=color, zorder=3,
+                   edgecolors="black", linewidths=0.8)
+        ax.annotate(f"{sampler}\nF1={f1:.3f}",
+                    (rec, prec), textcoords="offset points",
+                    xytext=(8, 4), fontsize=9,
+                    color=color, fontweight="bold" if sampler == "AGSS" else "normal")
+
+    # F1 iso-curves
+    for f1_iso in [0.70, 0.75, 0.80, 0.85, 0.90]:
+        r = np.linspace(0.01, 0.99, 300)
+        p = f1_iso * r / (2 * r - f1_iso)
+        mask = (p > 0) & (p <= 1)
+        ax.plot(r[mask], p[mask], "--", color="gray", linewidth=0.7, alpha=0.5)
+        ax.text(r[mask][-1] + 0.005, p[mask][-1], f"F1={f1_iso:.2f}",
+                fontsize=7, color="gray", va="center")
+
+    ax.set_xlabel("Recall", fontsize=11)
+    ax.set_ylabel("Precision", fontsize=11)
+    ax.set_title("Precision vs Recall — LSTM Oversampling Methods\n(creditcard dataset, 5-fold CV mean)",
+                 fontsize=11, fontweight="bold")
+    ax.set_xlim(0.60, 0.95)
+    ax.set_ylim(0.65, 1.00)
+    ax.grid(True, linestyle="--", alpha=0.4)
+
+    plt.tight_layout()
+    out = os.path.join(RESULTS_DIR, "fig_precision_recall.png")
+    plt.savefig(out, dpi=150)
+    plt.close()
+    print(f"Saved: {out}")
+
+
+def fig_f1_heatmap(df):
+    # Phase 1: single model (LSTM). Rows = models, cols = samplers
+    data = pd.DataFrame({"LSTM": df["f1"]}).T
+    fig, ax = plt.subplots(figsize=(6, 2.5))
+    im = ax.imshow(data.values, cmap="RdYlGn", vmin=0.70, vmax=0.95, aspect="auto")
+
+    ax.set_xticks(range(len(data.columns)))
+    ax.set_xticklabels(data.columns, fontsize=11)
+    ax.set_yticks(range(len(data.index)))
+    ax.set_yticklabels(data.index, fontsize=11)
+    ax.set_title("F1-score Heatmap — LSTM × Oversampling Method\n(creditcard, 5-fold CV)",
+                 fontsize=10, fontweight="bold")
+
+    for i in range(len(data.index)):
+        for j in range(len(data.columns)):
+            val = data.values[i, j]
+            ax.text(j, i, f"{val:.3f}", ha="center", va="center",
+                    fontsize=11, fontweight="bold",
+                    color="black" if 0.75 < val < 0.90 else "white")
+
+    plt.colorbar(im, ax=ax, label="F1-score", fraction=0.046, pad=0.04)
+    plt.tight_layout()
+    out = os.path.join(RESULTS_DIR, "fig_f1_heatmap.png")
+    plt.savefig(out, dpi=150)
+    plt.close()
+    print(f"Saved: {out}")
+
+
+def fig_german_f1_bar(path: str):
+    if not os.path.exists(path):
+        print(f"Skipping German bar chart — {path} not found yet.")
+        return
+    df = pd.read_csv(path)
+    samplers = df["sampler"].unique().tolist()
+    models   = df["model"].unique().tolist()
+    x = np.arange(len(samplers))
+    width = 0.35
+    model_colors = {"RNN": "#E74C3C", "LSTM": "#3498DB"}
+
+    fig, ax = plt.subplots(figsize=(9, 5))
+    for i, model in enumerate(models):
+        vals = [df[(df["model"] == model) & (df["sampler"] == s)]["f1_good"].values[0]
+                for s in samplers]
+        offset = (i - (len(models)-1)/2) * width
+        bars = ax.bar(x + offset, vals, width, label=model,
+                      color=model_colors.get(model, "#95A5A6"),
+                      edgecolor="white", linewidth=0.5)
+        for bar, v in zip(bars, vals):
+            ax.text(bar.get_x() + bar.get_width()/2, v + 0.003,
+                    f"{v:.3f}", ha="center", va="bottom", fontsize=8, fontweight="bold")
+
+    ax.axhline(0.8436, color="red", linestyle="--", linewidth=1.2, label="Paper LSTM+AGSS (0.8436)")
+    ax.axhline(0.8489, color="darkred", linestyle=":", linewidth=1.2, label="Paper RNN+AGSS (0.8489)")
+    ax.set_xticks(x)
+    ax.set_xticklabels(samplers, fontsize=11)
+    ax.set_ylim(0.75, 0.90)
+    ax.set_ylabel("F1-score (good credit class)", fontsize=11)
+    ax.set_title("Phase 2 — German Credit-Risk: F1 by Model & Sampler\n(5-fold CV, threshold=0.8)",
+                 fontsize=11, fontweight="bold")
+    ax.legend(fontsize=9)
+    ax.yaxis.grid(True, linestyle="--", alpha=0.5)
+    ax.set_axisbelow(True)
+    plt.tight_layout()
+    out = os.path.join(RESULTS_DIR, "fig_german_f1_bar.png")
+    plt.savefig(out, dpi=150)
+    plt.close()
+    print(f"Saved: {out}")
+
+
+def fig_german_f1_heatmap(path: str):
+    if not os.path.exists(path):
+        print(f"Skipping German heatmap — {path} not found yet.")
+        return
+    df = pd.read_csv(path)
+    pivot = df.pivot(index="model", columns="sampler", values="f1_good")
+
+    fig, ax = plt.subplots(figsize=(8, 3))
+    im = ax.imshow(pivot.values, cmap="RdYlGn", vmin=0.78, vmax=0.88, aspect="auto")
+    ax.set_xticks(range(len(pivot.columns)))
+    ax.set_xticklabels(pivot.columns, fontsize=11)
+    ax.set_yticks(range(len(pivot.index)))
+    ax.set_yticklabels(pivot.index, fontsize=11)
+    ax.set_title("F1 Heatmap (good credit class) — German Dataset\n(model × sampler, 5-fold CV)",
+                 fontsize=10, fontweight="bold")
+    for i in range(len(pivot.index)):
+        for j in range(len(pivot.columns)):
+            val = pivot.values[i, j]
+            ax.text(j, i, f"{val:.3f}", ha="center", va="center",
+                    fontsize=11, fontweight="bold")
+    plt.colorbar(im, ax=ax, label="F1 (good)", fraction=0.046, pad=0.04)
+    plt.tight_layout()
+    out = os.path.join(RESULTS_DIR, "fig_german_f1_heatmap.png")
+    plt.savefig(out, dpi=150)
+    plt.close()
+    print(f"Saved: {out}")
+
+
+if __name__ == "__main__":
+    df = load()
+    fig_metrics_bar(df)
+    fig_precision_recall(df)
+    fig_f1_heatmap(df)
+
+    german_path = os.path.join(RESULTS_DIR, "phase2_german_final.csv")
+    fig_german_f1_bar(german_path)
+    fig_german_f1_heatmap(german_path)
+
+    print("\nAll visualizations saved to results/")
