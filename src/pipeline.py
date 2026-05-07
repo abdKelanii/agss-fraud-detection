@@ -2,8 +2,11 @@
 Phase 1 reproduction pipeline:
   - Load & preprocess creditcard.csv
   - 5-fold stratified CV
-  - Compare AGSS vs SMOTE, ADASYN, ROS using LSTM
+  - Compare AGSS vs SMOTE, ADASYN, ROS using LSTM or RNN
   - Report accuracy, precision, recall, F1, ROC-AUC, PR-AUC
+
+Usage:
+  python src/pipeline.py creditcard.csv [--model LSTM|RNN]
 """
 
 import sys
@@ -24,7 +27,7 @@ from imblearn.over_sampling import SMOTE, ADASYN, RandomOverSampler
 
 sys.path.insert(0, os.path.dirname(__file__))
 from agss import AGSS
-from models import FraudLSTM
+from models import FraudLSTM, FraudRNN
 
 RANDOM_STATE = 42
 torch.manual_seed(RANDOM_STATE)
@@ -94,7 +97,7 @@ def evaluate_model(model, X_val, y_val, threshold=THRESHOLD):
     }
 
 
-def run_cv(X, y, sampler, sampler_name: str):
+def run_cv(X, y, sampler, sampler_name: str, model_name: str = "LSTM"):
     skf = StratifiedKFold(n_splits=N_FOLDS, shuffle=True, random_state=RANDOM_STATE)
     fold_metrics = []
     t0 = time.time()
@@ -107,7 +110,8 @@ def run_cv(X, y, sampler, sampler_name: str):
         X_tr_bal, y_tr_bal = sampler.fit_resample(X_tr, y_tr)
         y_tr_bal = y_tr_bal.astype(np.int64)
 
-        model = FraudLSTM(
+        cls = FraudRNN if model_name == "RNN" else FraudLSTM
+        model = cls(
             n_features=X.shape[1],
             hidden_size=HIDDEN_SIZE,
             num_layers=NUM_LAYERS,
@@ -131,14 +135,14 @@ def run_cv(X, y, sampler, sampler_name: str):
     return summary
 
 
-def main(data_path: str = None):
+def main(data_path: str = None, model_name: str = "LSTM"):
     if data_path is None:
         data_path = os.path.join(os.path.dirname(__file__), "..", "creditcard.csv")
 
     print(f"Loading data from {data_path} …")
     X, y = load_creditcard(data_path)
     print(f"  X shape: {X.shape}  |  fraud: {y.sum()} ({100*y.mean():.3f}%)")
-    print(f"  Device: {DEVICE}\n")
+    print(f"  Device: {DEVICE}  |  Model: {model_name}\n")
 
     samplers = {
         "ROS":   RandomOverSampler(random_state=RANDOM_STATE),
@@ -150,28 +154,33 @@ def main(data_path: str = None):
     results = []
     for name, sampler in samplers.items():
         print(f"\n{'='*60}")
-        print(f"Sampler: {name}")
-        summary = run_cv(X, y, sampler, name)
+        print(f"Model: {model_name}  |  Sampler: {name}")
+        summary = run_cv(X, y, sampler, name, model_name)
+        summary["model"] = model_name
         results.append(summary)
         print(f"  → mean F1={summary['f1']:.4f} ± {summary['f1_std']:.4f}  "
               f"Prec={summary['precision']:.4f}  Rec={summary['recall']:.4f}  "
               f"ROC-AUC={summary['roc_auc']:.4f}  ({summary['runtime_s']:.1f}s)")
 
     results_df = pd.DataFrame(results).set_index("sampler")
-    out_path = os.path.join(os.path.dirname(__file__), "..", "results", "phase1_lstm_creditcard.csv")
+    fname = f"phase1_{model_name.lower()}_creditcard.csv"
+    out_path = os.path.join(os.path.dirname(__file__), "..", "results", fname)
     os.makedirs(os.path.dirname(out_path), exist_ok=True)
     results_df.to_csv(out_path)
     print(f"\nResults saved to {out_path}")
 
-    # Pretty print summary table
     cols = ["accuracy", "precision", "recall", "f1", "roc_auc", "pr_auc"]
     print("\n" + "="*60)
-    print("PHASE 1 RESULTS — LSTM on creditcard.csv (5-fold CV mean)")
+    print(f"PHASE 1 RESULTS — {model_name} on creditcard.csv (5-fold CV mean)")
     print("="*60)
     print(results_df[cols].to_string(float_format="{:.4f}".format))
     return results_df
 
 
 if __name__ == "__main__":
-    path = sys.argv[1] if len(sys.argv) > 1 else None
-    main(path)
+    import argparse
+    parser = argparse.ArgumentParser()
+    parser.add_argument("data_path", nargs="?", default=None)
+    parser.add_argument("--model", default="LSTM", choices=["LSTM", "RNN"])
+    args = parser.parse_args()
+    main(args.data_path, args.model)

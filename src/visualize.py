@@ -1,11 +1,12 @@
 """
 Generate Phase 1 & 2 visualizations from saved results.
 Produces:
-  results/fig_metrics_bar.png        — Phase 1 grouped bar chart
-  results/fig_f1_heatmap.png         — Phase 1 F1 heatmap
-  results/fig_precision_recall.png   — Phase 1 Precision vs Recall scatter
-  results/fig_german_f1_bar.png      — Phase 2 F1 bar chart (good-class F1 per model+sampler)
-  results/fig_german_f1_heatmap.png  — Phase 2 F1 heatmap (model × sampler)
+  results/fig_metrics_bar.png          — Phase 1 LSTM grouped bar chart
+  results/fig_f1_heatmap.png           — Phase 1 LSTM F1 heatmap
+  results/fig_precision_recall.png     — Phase 1 LSTM Precision vs Recall scatter
+  results/fig_phase1_lstm_rnn_f1.png  — Phase 1 LSTM vs RNN F1 comparison
+  results/fig_german_f1_bar.png        — Phase 2 F1 bar chart (good-class F1 per model+sampler)
+  results/fig_german_f1_heatmap.png    — Phase 2 F1 heatmap (model × sampler)
 """
 
 import os
@@ -203,11 +204,53 @@ def fig_german_f1_heatmap(path: str):
     print(f"Saved: {out}")
 
 
+def fig_phase1_lstm_rnn_f1():
+    lstm_path = os.path.join(RESULTS_DIR, "phase1_lstm_creditcard.csv")
+    rnn_path  = os.path.join(RESULTS_DIR, "phase1_rnn_creditcard.csv")
+    if not os.path.exists(rnn_path):
+        print(f"Skipping LSTM vs RNN chart — {rnn_path} not found.")
+        return
+
+    lstm_df = pd.read_csv(lstm_path, index_col="sampler")
+    rnn_df  = pd.read_csv(rnn_path,  index_col="sampler")
+
+    samplers = lstm_df.index.tolist()
+    x = np.arange(len(samplers))
+    width = 0.35
+    model_colors = {"LSTM": "#3498DB", "RNN": "#E74C3C"}
+
+    fig, ax = plt.subplots(figsize=(9, 5))
+    for i, (label, df) in enumerate([("LSTM", lstm_df), ("RNN", rnn_df)]):
+        vals   = [df.loc[s, "f1"] for s in samplers]
+        offset = (i - 0.5) * width
+        bars   = ax.bar(x + offset, vals, width, label=label,
+                        color=model_colors[label], edgecolor="white", linewidth=0.5)
+        for bar, v in zip(bars, vals):
+            ax.text(bar.get_x() + bar.get_width() / 2, v + 0.003,
+                    f"{v:.3f}", ha="center", va="bottom", fontsize=8, fontweight="bold")
+
+    ax.set_xticks(x)
+    ax.set_xticklabels(samplers, fontsize=11)
+    ax.set_ylim(0.45, 0.92)
+    ax.set_ylabel("F1-score (fraud class)", fontsize=11)
+    ax.set_title("Phase 1 — LSTM vs RNN: F1 by Oversampling Method\n(creditcard dataset, 5-fold CV)",
+                 fontsize=11, fontweight="bold")
+    ax.legend(fontsize=10)
+    ax.yaxis.grid(True, linestyle="--", alpha=0.5)
+    ax.set_axisbelow(True)
+    plt.tight_layout()
+    out = os.path.join(RESULTS_DIR, "fig_phase1_lstm_rnn_f1.png")
+    plt.savefig(out, dpi=150)
+    plt.close()
+    print(f"Saved: {out}")
+
+
 if __name__ == "__main__":
     df = load()
     fig_metrics_bar(df)
     fig_precision_recall(df)
     fig_f1_heatmap(df)
+    fig_phase1_lstm_rnn_f1()
 
     german_path = os.path.join(RESULTS_DIR, "phase2_german_final.csv")
     fig_german_f1_bar(german_path)

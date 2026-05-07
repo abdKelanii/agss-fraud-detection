@@ -34,6 +34,17 @@ AGSS is evaluated against SMOTE, ADASYN, and ROS using four deep learning classi
 
 Paper reports LSTM+AGSS F1 = **0.8333** → We reproduced **0.8377** ✅
 
+### Phase 1 — Credit Card Dataset (RNN + Oversampling)
+
+| Sampler | Accuracy | Precision | Recall | F1 | ROC-AUC |
+|---------|----------|-----------|--------|----|---------|
+| ROS | 0.9981 | 0.4824 | 0.8678 | 0.6176 | 0.9779 |
+| SMOTE | 0.9978 | 0.4362 | 0.8638 | 0.5789 | 0.9796 |
+| ADASYN | 0.9969 | 0.3445 | 0.8678 | 0.4922 | 0.9779 |
+| **AGSS** | **0.9993** | **0.8372** | 0.7967 | **0.8077** | **0.9780** |
+
+AGSS is the clear winner for RNN too (F1=0.8077 vs 0.6176 for the next best). LSTM+AGSS outperforms RNN+AGSS (0.8377 vs 0.8077), consistent with the paper's LSTM-favoring trend.
+
 ### Phase 2 — German Credit-Risk Dataset (RNN + Oversampling)
 
 | Sampler | Accuracy | F1 (good class) | ROC-AUC |
