@@ -43,7 +43,7 @@ Paper reports LSTM+AGSS F1 = **0.8333** → We reproduced **0.8377** ✅
 | ADASYN | 0.9969 | 0.3445 | 0.8678 | 0.4922 | 0.9779 |
 | **AGSS** | **0.9993** | **0.8372** | 0.7967 | **0.8077** | **0.9780** |
 
-AGSS is the clear winner for RNN too (F1=0.8077 vs 0.6176 for the next best). LSTM+AGSS outperforms RNN+AGSS (0.8377 vs 0.8077), consistent with the paper's LSTM-favoring trend.
+Paper reports RNN+AGSS F1 = **0.8125**, accuracy = **0.9994**, precision = **0.8298** → We reproduced F1 **0.8077**, accuracy **0.9993**, precision **0.8372** ✅ (< 0.5% gap)
 
 ### Phase 2 — German Credit-Risk Dataset (RNN + Oversampling)
 
