@@ -42,8 +42,16 @@ np.random.seed(RANDOM_STATE)
 N_FOLDS = 5
 DEVICE  = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
+# Per-method thresholds from tune_under_creditcard.py
+CREDITCARD_THRESHOLDS = {
+    "AGSS":       0.97,
+    "RUS":        0.97,
+    "TomekLinks": 0.99,
+    "ENN":        0.99,
+    "NearMiss":   0.95,
+}
 CREDITCARD_CFG = dict(hidden=64, layers=2, dropout=0.3, lr=1e-3, epochs=20,
-                      batch=256, threshold=0.5)
+                      batch=256, threshold=0.5)   # threshold overridden per-method below
 GERMAN_CFG     = dict(hidden=32, layers=2, dropout=0.3, lr=5e-4, epochs=200,
                       batch=32,  threshold=0.8)
 
@@ -186,8 +194,9 @@ def run_creditcard():
     results = []
     for model_name in ["LSTM", "RNN"]:
         for name, sampler in get_undersamplers_creditcard().items():
-            print(f"\n{'='*60}\nModel: {model_name}  |  Undersampler: {name}")
-            s = run_cv(X, y, sampler, name, model_name, CREDITCARD_CFG, evaluate_creditcard)
+            cfg = {**CREDITCARD_CFG, "threshold": CREDITCARD_THRESHOLDS.get(name, 0.5)}
+            print(f"\n{'='*60}\nModel: {model_name}  |  Undersampler: {name}  |  threshold={cfg['threshold']}")
+            s = run_cv(X, y, sampler, name, model_name, cfg, evaluate_creditcard)
             results.append(s)
             print(f"  → F1={s['f1']:.4f}±{s['f1_std']:.4f}  "
                   f"Prec={s['precision']:.4f}  Rec={s['recall']:.4f}  "

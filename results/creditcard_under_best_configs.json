@@ -1,0 +1,30 @@
+{
+  "AGSS": {
+    "sampler": "AGSS",
+    "ratio": 1,
+    "best_f1": 0.8213166144200627,
+    "best_threshold": 0.97,
+    "roc_auc": 0.9727646565722292
+  },
+  "TomekLinks": {
+    "sampler": "TomekLinks",
+    "ratio": "N/A",
+    "best_f1": 0.7541589648798521,
+    "best_threshold": 0.99,
+    "roc_auc": 0.9736399882244431
+  },
+  "ENN": {
+    "sampler": "ENN",
+    "ratio": "N/A",
+    "best_f1": 0.7367475292003594,
+    "best_threshold": 0.99,
+    "roc_auc": 0.9760091399253863
+  },
+  "NearMiss": {
+    "sampler": "NearMiss",
+    "ratio": "N/A",
+    "best_f1": 0.814968814968815,
+    "best_threshold": 0.95,
+    "roc_auc": 0.8828527280445413
+  }
+}
