@@ -139,13 +139,19 @@ class AGSSUnderSampler:
     """
     AGSS undersampling: cluster the majority class with DBSCAN, discard noise
     points, then subsample clustered majority points down to n_minority.
+
+    For large majority classes (> dbscan_max_samples), pre-subsamples before
+    DBSCAN to keep runtime manageable — captures the same cluster structure
+    without running DBSCAN on hundreds of thousands of points.
     """
 
-    def __init__(self, eps=0.8, min_samples=3, random_state=42, adaptive_eps=True):
+    def __init__(self, eps=0.8, min_samples=3, random_state=42,
+                 adaptive_eps=True, dbscan_max_samples=10_000):
         self.eps = eps
         self.min_samples = min_samples
         self.random_state = random_state
         self.adaptive_eps = adaptive_eps
+        self.dbscan_max_samples = dbscan_max_samples   # speed cap for large datasets
 
     def _choose_eps(self, X_maj):
         k = min(self.min_samples, len(X_maj) - 1)
@@ -158,19 +164,26 @@ class AGSSUnderSampler:
         X_maj, X_min = X[y == 0], X[y == 1]
         n_target = len(X_min)
 
+        # Pre-subsample majority before DBSCAN if it's very large
+        if len(X_maj) > self.dbscan_max_samples:
+            idx_pre = rng.choice(len(X_maj), size=self.dbscan_max_samples, replace=False)
+            X_maj_sample = X_maj[idx_pre]
+        else:
+            X_maj_sample = X_maj
+
         eps = self.eps
-        labels = DBSCAN(eps=eps, min_samples=self.min_samples).fit_predict(X_maj)
+        labels = DBSCAN(eps=eps, min_samples=self.min_samples).fit_predict(X_maj_sample)
 
         if len(set(labels) - {-1}) < 1 and self.adaptive_eps:
-            eps = self._choose_eps(X_maj)
+            eps = self._choose_eps(X_maj_sample)
             print(f"AGSSUnder: adaptive eps={eps:.3f}")
-            labels = DBSCAN(eps=eps, min_samples=self.min_samples).fit_predict(X_maj)
+            labels = DBSCAN(eps=eps, min_samples=self.min_samples).fit_predict(X_maj_sample)
 
-        X_maj_clean = X_maj[labels != -1]
+        X_maj_clean = X_maj_sample[labels != -1]
 
         if len(X_maj_clean) == 0:
-            idx = rng.choice(len(X_maj), size=n_target, replace=False)
-            X_maj_clean = X_maj[idx]
+            idx = rng.choice(len(X_maj_sample), size=n_target, replace=False)
+            X_maj_clean = X_maj_sample[idx]
         elif len(X_maj_clean) > n_target:
             idx = rng.choice(len(X_maj_clean), size=n_target, replace=False)
             X_maj_clean = X_maj_clean[idx]
