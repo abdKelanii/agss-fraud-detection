@@ -26,3 +26,7 @@ creditcard.csv
 
 # Raw datasets (download from Kaggle — see README)
 german_credit_data.csv
+
+# Paper PDFs (copyright — download from IEEE)
+*.pdf
+.claude/

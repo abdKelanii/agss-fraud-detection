@@ -1,12 +1,12 @@
 """
 Generate Phase 1 & 2 visualizations from saved results.
 Produces:
-  results/fig_metrics_bar.png          — Phase 1 LSTM grouped bar chart
-  results/fig_f1_heatmap.png           — Phase 1 LSTM F1 heatmap
-  results/fig_precision_recall.png     — Phase 1 LSTM Precision vs Recall scatter
-  results/fig_phase1_lstm_rnn_f1.png  — Phase 1 LSTM vs RNN F1 comparison
-  results/fig_german_f1_bar.png        — Phase 2 F1 bar chart (good-class F1 per model+sampler)
-  results/fig_german_f1_heatmap.png    — Phase 2 F1 heatmap (model × sampler)
+  figures/fig_metrics_bar.png          — Phase 1 LSTM grouped bar chart
+  figures/fig_f1_heatmap.png           — Phase 1 LSTM F1 heatmap
+  figures/fig_precision_recall.png     — Phase 1 LSTM Precision vs Recall scatter
+  figures/fig_phase1_lstm_rnn_f1.png  — Phase 1 LSTM vs RNN F1 comparison
+  figures/fig_german_f1_bar.png        — Phase 2 F1 bar chart (good-class F1 per model+sampler)
+  figures/fig_german_f1_heatmap.png    — Phase 2 F1 heatmap (model × sampler)
 """
 
 import os
@@ -16,6 +16,7 @@ import matplotlib.patches as mpatches
 import numpy as np
 
 RESULTS_DIR = os.path.join(os.path.dirname(__file__), "..", "results")
+FIGURES_DIR = os.path.join(os.path.dirname(__file__), "..", "figures")
 CSV_PATH    = os.path.join(RESULTS_DIR, "phase1_lstm_creditcard.csv")
 
 COLORS = {
@@ -62,7 +63,8 @@ def fig_metrics_bar(df):
                 ha="center", va="bottom", fontsize=7.5, fontweight="bold")
 
     plt.tight_layout()
-    out = os.path.join(RESULTS_DIR, "fig_metrics_bar.png")
+    os.makedirs(FIGURES_DIR, exist_ok=True)
+    out = os.path.join(FIGURES_DIR, "fig_metrics_bar.png")
     plt.savefig(out, dpi=150)
     plt.close()
     print(f"Saved: {out}")
@@ -101,7 +103,8 @@ def fig_precision_recall(df):
     ax.grid(True, linestyle="--", alpha=0.4)
 
     plt.tight_layout()
-    out = os.path.join(RESULTS_DIR, "fig_precision_recall.png")
+    os.makedirs(FIGURES_DIR, exist_ok=True)
+    out = os.path.join(FIGURES_DIR, "fig_precision_recall.png")
     plt.savefig(out, dpi=150)
     plt.close()
     print(f"Saved: {out}")
@@ -129,7 +132,8 @@ def fig_f1_heatmap(df):
 
     plt.colorbar(im, ax=ax, label="F1-score", fraction=0.046, pad=0.04)
     plt.tight_layout()
-    out = os.path.join(RESULTS_DIR, "fig_f1_heatmap.png")
+    os.makedirs(FIGURES_DIR, exist_ok=True)
+    out = os.path.join(FIGURES_DIR, "fig_f1_heatmap.png")
     plt.savefig(out, dpi=150)
     plt.close()
     print(f"Saved: {out}")
@@ -170,7 +174,8 @@ def fig_german_f1_bar(path: str):
     ax.yaxis.grid(True, linestyle="--", alpha=0.5)
     ax.set_axisbelow(True)
     plt.tight_layout()
-    out = os.path.join(RESULTS_DIR, "fig_german_f1_bar.png")
+    os.makedirs(FIGURES_DIR, exist_ok=True)
+    out = os.path.join(FIGURES_DIR, "fig_german_f1_bar.png")
     plt.savefig(out, dpi=150)
     plt.close()
     print(f"Saved: {out}")
@@ -198,7 +203,8 @@ def fig_german_f1_heatmap(path: str):
                     fontsize=11, fontweight="bold")
     plt.colorbar(im, ax=ax, label="F1 (good)", fraction=0.046, pad=0.04)
     plt.tight_layout()
-    out = os.path.join(RESULTS_DIR, "fig_german_f1_heatmap.png")
+    os.makedirs(FIGURES_DIR, exist_ok=True)
+    out = os.path.join(FIGURES_DIR, "fig_german_f1_heatmap.png")
     plt.savefig(out, dpi=150)
     plt.close()
     print(f"Saved: {out}")
@@ -239,7 +245,8 @@ def fig_phase1_lstm_rnn_f1():
     ax.yaxis.grid(True, linestyle="--", alpha=0.5)
     ax.set_axisbelow(True)
     plt.tight_layout()
-    out = os.path.join(RESULTS_DIR, "fig_phase1_lstm_rnn_f1.png")
+    os.makedirs(FIGURES_DIR, exist_ok=True)
+    out = os.path.join(FIGURES_DIR, "fig_phase1_lstm_rnn_f1.png")
     plt.savefig(out, dpi=150)
     plt.close()
     print(f"Saved: {out}")
@@ -280,7 +287,8 @@ def fig_under_german(path):
     ax.yaxis.grid(True, linestyle="--", alpha=0.5)
     ax.set_axisbelow(True)
     plt.tight_layout()
-    out = os.path.join(RESULTS_DIR, "fig_under_german.png")
+    os.makedirs(FIGURES_DIR, exist_ok=True)
+    out = os.path.join(FIGURES_DIR, "fig_under_german.png")
     plt.savefig(out, dpi=150)
     plt.close()
     print(f"Saved: {out}")
@@ -320,7 +328,8 @@ def fig_under_creditcard(path):
     ax.yaxis.grid(True, linestyle="--", alpha=0.5)
     ax.set_axisbelow(True)
     plt.tight_layout()
-    out = os.path.join(RESULTS_DIR, "fig_under_creditcard.png")
+    os.makedirs(FIGURES_DIR, exist_ok=True)
+    out = os.path.join(FIGURES_DIR, "fig_under_creditcard.png")
     plt.savefig(out, dpi=150)
     plt.close()
     print(f"Saved: {out}")
@@ -340,4 +349,4 @@ if __name__ == "__main__":
     fig_under_german(os.path.join(RESULTS_DIR, "phase2_under_german.csv"))
     fig_under_creditcard(os.path.join(RESULTS_DIR, "phase1_under_creditcard.csv"))
 
-    print("\nAll visualizations saved to results/")
+    print("\nAll visualizations saved to figures/")
