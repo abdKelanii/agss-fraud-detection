@@ -1,0 +1,14 @@
+{
+  "model": "RNN",
+  "task": "creditcard_undersampling",
+  "hidden_size": 128,
+  "epochs": 75,
+  "lr": 5e-05,
+  "best_f1": 0.8218,
+  "best_threshold": 0.9,
+  "precision": 0.8652,
+  "recall": 0.7825,
+  "roc_auc": 0.9664,
+  "paper_agss_over_f1": 0.8125,
+  "paper_tomeklinks_under_f1": 0.8047
+}
