@@ -40,7 +40,7 @@ torch.manual_seed(RANDOM_STATE)
 np.random.seed(RANDOM_STATE)
 
 N_FOLDS = 5
-DEVICE  = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+DEVICE  = torch.device("cuda" if torch.cuda.is_available() else "mps" if torch.backends.mps.is_available() else "cpu")
 
 # Per-method thresholds from tune_under_creditcard.py
 CREDITCARD_THRESHOLDS = {

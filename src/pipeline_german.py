@@ -36,7 +36,7 @@ EPOCHS      = 200
 BATCH_SIZE  = 32
 THRESHOLD   = 0.8      # optimised for F1 of good-credit class (paper's convention)
 N_FOLDS     = 5
-DEVICE      = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+DEVICE      = torch.device("cuda" if torch.cuda.is_available() else "mps" if torch.backends.mps.is_available() else "cpu")
 
 
 def load_german(path: str):

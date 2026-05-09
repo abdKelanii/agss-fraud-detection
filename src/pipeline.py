@@ -42,7 +42,7 @@ EPOCHS       = 20
 BATCH_SIZE   = 256
 THRESHOLD    = 0.5
 N_FOLDS      = 5
-DEVICE       = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+DEVICE       = torch.device("cuda" if torch.cuda.is_available() else "mps" if torch.backends.mps.is_available() else "cpu")
 
 
 def load_creditcard(path: str):

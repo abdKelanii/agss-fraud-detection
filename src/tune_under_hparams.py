@@ -32,7 +32,7 @@ torch.manual_seed(RANDOM_STATE)
 np.random.seed(RANDOM_STATE)
 
 N_FOLDS    = 5
-DEVICE     = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+DEVICE     = torch.device("cuda" if torch.cuda.is_available() else "mps" if torch.backends.mps.is_available() else "cpu")
 THRESHOLDS = [0.93, 0.94, 0.95, 0.96, 0.97, 0.975, 0.98, 0.985, 0.99]
 
 GRID = {
