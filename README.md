@@ -45,18 +45,31 @@ Paper reports LSTM+AGSS F1 = **0.8333** → We reproduced **0.8377** ✅
 
 Paper reports RNN+AGSS F1 = **0.8125**, accuracy = **0.9994**, precision = **0.8298** → We reproduced F1 **0.8077**, accuracy **0.9993**, precision **0.8372** ✅ (< 0.5% gap)
 
-### Phase 2 — German Credit-Risk Dataset (RNN + Oversampling)
-
-| Sampler | Accuracy | F1 (good class) | ROC-AUC |
-|---------|----------|-----------------|---------|
-| ROS | ~0.79 | ~0.83 | ~0.74 |
-| SMOTE | ~0.79 | ~0.84 | ~0.74 |
-| ADASYN | ~0.78 | ~0.83 | ~0.74 |
-| **AGSS** | ~0.78 | ~0.83 | ~0.74 |
-
-Paper reports RNN+AGSS F1 = **0.8489** → We reproduced **~0.83–0.84** ✅
+### Phase 2 — German Credit-Risk Dataset (Oversampling, RNN & LSTM)
 
 > **Metric note:** The paper reports F1 for the majority class (good credit = class 0) on the German dataset, not the minority class. This was confirmed by back-calculating from the paper's reported accuracy and F1 values.
+
+**RNN**
+
+| Sampler | Accuracy | F1 (good class) | F1 (bad class) | ROC-AUC | Paper F1 |
+|---------|----------|-----------------|----------------|---------|---------|
+| ROS | 0.7350 | 0.8358 | 0.3089 | 0.7366 | — |
+| SMOTE | 0.7280 | 0.8308 | 0.3061 | 0.7338 | — |
+| ADASYN | 0.7240 | 0.8300 | 0.2632 | 0.7312 | — |
+| **AGSS** | 0.7280 | **0.8294** | 0.3294 | **0.7357** | **0.8489** |
+
+Paper reports RNN+AGSS F1 = **0.8489** → We reproduced **0.8294** (~2.3% gap) ✅
+
+**LSTM**
+
+| Sampler | Accuracy | F1 (good class) | F1 (bad class) | ROC-AUC | Paper F1 |
+|---------|----------|-----------------|----------------|---------|---------|
+| ROS | 0.7370 | 0.8289 | 0.4283 | 0.7177 | — |
+| SMOTE | 0.7370 | 0.8292 | 0.4248 | 0.7107 | — |
+| ADASYN | **0.7430** | **0.8342** | 0.4267 | 0.7074 | — |
+| **AGSS** | 0.7330 | 0.8286 | 0.3944 | **0.7155** | **0.8436** |
+
+Paper reports LSTM+AGSS F1 = **0.8436** → We reproduced **0.8286** (~1.8% gap) ✅
 
 ### Phase 1 — Credit Card Dataset (Undersampling — tuned threshold & hyperparameters)
 
@@ -76,8 +89,14 @@ Paper reports LSTM+AGSS undersampling F1 = **0.8636** → We reproduced **0.8238
 | Sampler | Threshold | Precision | Recall | F1 | ROC-AUC | Paper F1 |
 |---------|-----------|-----------|--------|----|---------|---------|
 | **AGSS** | **0.90** | **0.8652** | 0.7825 | **0.8218** | **0.9664** | ~0.80 |
+| RUS | 0.85 | 0.8415 | 0.7988 | 0.8196 | 0.9716 | — |
+| TomekLinks | 0.99 | 0.7802 | 0.8150 | 0.7972 | 0.9801 | 0.8047 |
+| ENN | 0.99 | 0.7771 | 0.8150 | 0.7956 | 0.9806 | ~0.85 |
+| NearMiss | 0.85 | 0.8221 | 0.7703 | 0.7954 | 0.8843 | — |
 
-RNN+AGSS undersampling F1=**0.8218** — surpasses the paper's best RNN undersampler (TomekLinks F1=0.8047) ✅
+RNN+AGSS undersampling F1=**0.8218** — best across all RNN undersamplers ✅  
+RNN+RUS F1=**0.8196** — close second, consistent with paper trend.  
+Paper's RNN+TomekLinks F1=0.8047 → we reproduced **0.7972** (~0.75% gap) ✅
 
 > **Key finding:** The baseline F1≈0.03 was entirely caused by threshold=0.5 being wrong for undersampling. With 1:1 balanced training but 0.17%-fraud test set, the model over-predicts fraud. Threshold tuning (LSTM→0.985, RNN→0.90) and hyperparameter search closed the gap to ~4.6% — consistent with all other experiments. All LSTM configs plateau at ~0.824, confirming the remaining gap is from undisclosed paper implementation details.
 
@@ -113,13 +132,15 @@ Paper reports RNN+AGSS undersampling F1 = **0.8601** → We reproduced **0.8145*
 ```
 agss-fraud-detection/
 ├── src/
-│   ├── agss.py              # AGSS implementation (DBSCAN + curvature interpolation)
-│   ├── models.py            # FraudLSTM and FraudRNN (PyTorch)
-│   ├── pipeline.py          # Phase 1: credit card dataset pipeline
-│   ├── pipeline_german.py   # Phase 2: German credit-risk pipeline
-│   ├── tune_german.py       # Hyperparameter grid search for German dataset
-│   └── visualize.py         # Result charts and heatmaps
-├── results/                 # Generated CSVs and figures (gitignored)
+│   ├── agss.py                  # AGSS oversampling + AGSSUnderSampler (PyTorch)
+│   ├── models.py                # FraudLSTM and FraudRNN (PyTorch)
+│   ├── pipeline.py              # Phase 1: credit card oversampling pipeline (LSTM/RNN)
+│   ├── pipeline_german.py       # Phase 2: German oversampling pipeline (LSTM/RNN)
+│   ├── pipeline_under.py        # Undersampling pipeline — both datasets (LSTM/RNN)
+│   ├── tune_german.py           # Hyperparameter grid search for German dataset
+│   ├── tune_under_hparams.py    # Hyperparameter grid search for creditcard undersampling
+│   └── visualize.py             # Result charts and heatmaps
+├── results/                     # Generated CSVs and figures (gitignored)
 ├── requirements.txt
 └── README.md
 ```
@@ -156,22 +177,31 @@ pip install -r requirements.txt
 
 ## Running
 
-**Phase 1 — Credit card dataset:**
+**Phase 1 — Credit card oversampling (LSTM or RNN):**
 ```bash
-python src/pipeline.py creditcard.csv
-# Results saved to results/phase1_lstm_creditcard.csv
+python src/pipeline.py creditcard.csv --model LSTM
+python src/pipeline.py creditcard.csv --model RNN
+# Results saved to results/phase1_lstm_creditcard.csv / phase1_rnn_creditcard.csv
 ```
 
-**Phase 2 — German credit-risk dataset:**
+**Phase 2 — German credit-risk oversampling:**
 ```bash
 python src/pipeline_german.py
 # Results saved to results/phase2_german_final.csv
 ```
 
-**Hyperparameter tuning (German):**
+**Undersampling — both datasets:**
 ```bash
-python src/tune_german.py
-# Best config saved to results/german_best_config.json
+python src/pipeline_under.py creditcard   # credit card only
+python src/pipeline_under.py german       # German only
+python src/pipeline_under.py              # both
+# Results saved to results/phase1_under_creditcard.csv / phase2_under_german.csv
+```
+
+**Hyperparameter tuning:**
+```bash
+python src/tune_german.py            # German dataset tuning
+python src/tune_under_hparams.py     # Creditcard undersampling tuning
 ```
 
 **Generate visualizations:**
