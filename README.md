@@ -126,16 +126,16 @@ Paper's RNN+TomekLinks F1 = 0.8047 → Reproduced **0.7972** ✅ (~0.75% gap)
 
 Paper reports RNN+AGSS undersampling F1 = **0.8601** → Reproduced **0.8145** ✅ (~4.5% gap)
 
-### Phase 1 — Credit Card Dataset (GAN + Oversampling)
+### Phase 1 — Credit Card Dataset (GAN + Oversampling, tuned threshold)
 
 | Sampler | F1 | Threshold | Precision | Recall | ROC-AUC |
 |---------|----|-----------|-----------|--------|---------|
-| ROS | 0.3446 | 0.50 | 0.2085 | 0.9390 | 0.9661 |
-| SMOTE | 0.3936 | 0.50 | 0.2464 | 0.9329 | 0.9668 |
-| ADASYN | 0.2368 | 0.50 | 0.1350 | 0.9532 | 0.9657 |
-| **AGSS** | **0.7459** | 0.50 | **0.8051** | **0.6951** | **0.9668** |
+| ROS | 0.3713 | 0.40 | 0.3054 | 0.4736 | 0.9664 |
+| SMOTE | 0.4054 | 0.40 | 0.3200 | 0.5528 | 0.9666 |
+| ADASYN | 0.3660 | 0.30 | 0.3024 | 0.4634 | 0.9658 |
+| **AGSS** | **0.7497** | **0.40** | **0.8667** | **0.6606** | **0.9574** |
 
-GAN+AGSS achieves F1=0.7459 with threshold=0.5. Threshold tuning (see tune_gan.py) expected to push F1 to ~0.78+.
+GAN+AGSS F1=0.7497 with tuned threshold=0.4 — AGSS dominates by ~0.35 F1 over next-best (SMOTE=0.405). Optimal threshold is 0.40 for all four samplers, not the default 0.5. GAN+AGSS hyperparameter grid search (Part 2) running — results pending.
 
 ### Phase 1 — Credit Card Dataset (GAN + Undersampling)
 
