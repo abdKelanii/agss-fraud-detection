@@ -137,6 +137,17 @@ Paper reports RNN+AGSS undersampling F1 = **0.8601** → Reproduced **0.8145** �
 
 GAN+AGSS F1=0.7497 with tuned threshold=0.4 — AGSS dominates by ~0.35 F1 over next-best (SMOTE=0.405). Optimal threshold is 0.40 for all four samplers, not the default 0.5. GAN+AGSS hyperparameter grid search (Part 2) running — results pending.
 
+### Phase 1 — Credit Card Dataset (Transformer + Oversampling)
+
+> **Note:** Threshold=0.5 (no tuning) — the low F1 for ROS/SMOTE/ADASYN reflects model over-predicting fraud at the balanced threshold; ROC-AUC is high (≥0.878), confirming good ranking. AGSS produces a cleaner, denser synthetic set → F1=0.392.
+
+| Sampler | Accuracy | Precision | Recall | F1 | ROC-AUC | PR-AUC |
+|---------|----------|-----------|--------|----|---------|--------|
+| ROS | 0.8897 | 0.0133 | 0.8618 | 0.0263 | 0.9226 | 0.3706 |
+| SMOTE | 0.9398 | 0.0242 | 0.8598 | 0.0470 | 0.9209 | 0.4386 |
+| ADASYN | 0.7782 | 0.0064 | 0.8272 | 0.0127 | 0.8781 | 0.3854 |
+| **AGSS** | **0.9975** | **0.3367** | 0.4695 | **0.3922** | **0.9208** | **0.3310** |
+
 ### Phase 1 — Credit Card Dataset (GAN + Undersampling)
 
 | Sampler | F1 | Threshold | Precision | Recall | ROC-AUC |
