@@ -148,6 +148,18 @@ GAN+AGSS F1=0.7497 with tuned threshold=0.4 — AGSS dominates by ~0.35 F1 over 
 | ADASYN | 0.7782 | 0.0064 | 0.8272 | 0.0127 | 0.8781 | 0.3854 |
 | **AGSS** | **0.9975** | **0.3367** | 0.4695 | **0.3922** | **0.9208** | **0.3310** |
 
+### Phase 1 — Credit Card Dataset (Transformer + Undersampling, tuned threshold)
+
+> Threshold tuned via post-hoc sweep. AGSS/RUS/NearMiss reduce to ~984 samples (35s/run); TomekLinks/ENN keep ~280k samples (2 hrs/run). ENN best at F1=0.350.
+
+| Sampler | Accuracy | Precision | Recall | F1 | Threshold | ROC-AUC |
+|---------|----------|-----------|--------|----|-----------|---------|
+| AGSS | 0.9927 | 0.0973 | 0.3902 | 0.1558 | 0.99 | 0.9468 |
+| RUS | 0.9929 | 0.1390 | 0.5996 | 0.2257 | 0.98 | 0.9476 |
+| TomekLinks | 0.9940 | 0.1892 | 0.7459 | 0.3018 | 0.99 | 0.9534 |
+| **ENN** | **0.9954** | **0.2309** | 0.7256 | **0.3503** | 0.99 | **0.9493** |
+| NearMiss | 0.9927 | 0.0730 | 0.2764 | 0.1155 | 0.99 | 0.9400 |
+
 ### Phase 1 — Credit Card Dataset (GAN + Undersampling)
 
 | Sampler | F1 | Threshold | Precision | Recall | ROC-AUC |
@@ -157,6 +169,29 @@ GAN+AGSS F1=0.7497 with tuned threshold=0.4 — AGSS dominates by ~0.35 F1 over 
 | TomekLinks | 0.1922 | — | — | — | 0.9744 |
 | ENN | 0.1818 | — | — | — | 0.9747 |
 | NearMiss | 0.6790 | 0.85 | 0.7326 | 0.6341 | 0.8947 |
+
+### Phase 2 — German Credit-Risk Dataset (Transformer + Oversampling)
+
+> Transformer uses d_model=32, 300 epochs, batch=32. All at threshold=0.5. AGSS leads on F1_good (0.702), gap vs paper RNN+AGSS (0.849) is ~14.7% — consistent with Transformer needing larger d_model for German.
+
+| Sampler | Accuracy | F1 (good) | F1 (bad) | F1 weighted | ROC-AUC | Paper F1 |
+|---------|----------|-----------|----------|-------------|---------|---------|
+| ROS | 0.632 | 0.6979 | 0.5294 | 0.6473 | 0.6778 | — |
+| SMOTE | 0.625 | 0.6846 | 0.5376 | 0.6405 | 0.6833 | — |
+| ADASYN | 0.613 | 0.6701 | 0.5320 | 0.6287 | 0.6759 | — |
+| **AGSS** | 0.624 | **0.7021** | 0.4905 | 0.6386 | 0.6694 | **0.8489** |
+
+### Phase 2 — German Credit-Risk Dataset (Transformer + Undersampling)
+
+> All at threshold=0.5. RUS best at F1_good=0.697. Transformer underperforms LSTM/RNN on German — d_model=32 may be too small.
+
+| Sampler | Accuracy | F1 (good) | F1 (bad) | F1 weighted | ROC-AUC |
+|---------|----------|-----------|----------|-------------|---------|
+| AGSS | 0.595 | 0.6622 | 0.4944 | 0.6119 | 0.6493 |
+| **RUS** | **0.636** | **0.6972** | 0.5439 | **0.6512** | **0.6867** |
+| TomekLinks | 0.610 | 0.6561 | 0.5497 | 0.6242 | 0.6971 |
+| ENN | 0.615 | 0.6684 | 0.5411 | 0.6302 | 0.6758 |
+| NearMiss | 0.537 | 0.6026 | 0.4455 | 0.5555 | 0.5863 |
 
 ### Phase 2 — German Credit-Risk Dataset (GAN)
 
