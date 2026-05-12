@@ -135,7 +135,21 @@ Paper reports RNN+AGSS undersampling F1 = **0.8601** → Reproduced **0.8145** �
 | ADASYN | 0.3660 | 0.30 | 0.3024 | 0.4634 | 0.9658 |
 | **AGSS** | **0.7497** | **0.40** | **0.8667** | **0.6606** | **0.9574** |
 
-GAN+AGSS F1=0.7497 with tuned threshold=0.4 — AGSS dominates by ~0.35 F1 over next-best (SMOTE=0.405). Optimal threshold is 0.40 for all four samplers, not the default 0.5. GAN+AGSS hyperparameter grid search (Part 2) running — results pending.
+GAN+AGSS F1=0.7497 with tuned threshold=0.4 — AGSS dominates by ~0.35 F1 over next-best (SMOTE=0.405). Optimal threshold is 0.40 for all four samplers, not the default 0.5.
+
+**GAN+AGSS Hyperparameter Grid Search (Part 2) — Best config: hidden=128, epochs=100, lr=5e-5 → F1=0.7483**
+
+| Hidden | Epochs | LR | F1 | Threshold | Precision | ROC-AUC |
+|--------|--------|----|----|-----------|-----------|---------|
+| 128 | 50 | 1e-4 | 0.7458 | 0.30 | 0.8215 | 0.9484 |
+| 128 | 50 | 5e-5 | 0.7386 | 0.50 | 0.8726 | 0.9494 |
+| 128 | 100 | 1e-4 | 0.7425 | 0.30 | 0.8222 | 0.9503 |
+| **128** | **100** | **5e-5** | **0.7483** | **0.30** | **0.8367** | **0.9482** |
+| 256 | 50 | 1e-4 | 0.7435 | 0.60 | 0.8827 | 0.9403 |
+| 256 | 50 | 5e-5 | 0.7429 | 0.50 | 0.8848 | 0.9482 |
+| 256 | 100 | 1e-4 | 0.7449 | 0.60 | 0.9067 | 0.9467 |
+
+All configs plateau at F1=0.738–0.750 — the ~5% gap vs paper (0.7981) reflects undisclosed GAN architecture details.
 
 ### Phase 1 — Credit Card Dataset (Transformer + Oversampling)
 
