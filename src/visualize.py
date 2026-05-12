@@ -335,6 +335,151 @@ def fig_under_creditcard(path):
     print(f"Saved: {out}")
 
 
+MODEL_COLORS = {
+    "LSTM":        "#3498DB",
+    "RNN":         "#E74C3C",
+    "GAN":         "#F39C12",
+    "Transformer": "#9B59B6",
+}
+
+
+def _grouped_bar(ax, data, models, samplers, ylabel, title, ylim, annotate=True):
+    x = np.arange(len(samplers))
+    width = 0.8 / len(models)
+    offsets = np.linspace(-(len(models)-1)/2, (len(models)-1)/2, len(models)) * width
+    for i, model in enumerate(models):
+        vals = [data.get((model, s), 0) for s in samplers]
+        bars = ax.bar(x + offsets[i], vals, width, label=model,
+                      color=MODEL_COLORS[model], edgecolor="white", linewidth=0.5)
+        if annotate:
+            for bar, v in zip(bars, vals):
+                if v > ylim[0] + 0.02:
+                    ax.text(bar.get_x() + bar.get_width()/2, v + 0.005,
+                            f"{v:.3f}", ha="center", va="bottom",
+                            fontsize=6.5, fontweight="bold", rotation=90)
+    ax.set_xticks(x)
+    ax.set_xticklabels(samplers, fontsize=10)
+    ax.set_ylim(*ylim)
+    ax.set_ylabel(ylabel, fontsize=11)
+    ax.set_title(title, fontsize=11, fontweight="bold")
+    ax.legend(title="Model", fontsize=9, loc="lower right")
+    ax.yaxis.grid(True, linestyle="--", alpha=0.5)
+    ax.set_axisbelow(True)
+
+
+def fig_phase1_over_all_models():
+    lstm = pd.read_csv(os.path.join(RESULTS_DIR, "phase1_lstm_creditcard.csv"))
+    rnn  = pd.read_csv(os.path.join(RESULTS_DIR, "phase1_rnn_creditcard.csv"))
+    gan  = pd.read_csv(os.path.join(RESULTS_DIR, "phase1_gan_over_tuned_creditcard.csv"))
+    tfm  = pd.read_csv(os.path.join(RESULTS_DIR, "phase1_transformer_over_creditcard.csv"))
+
+    data = {}
+    for row in lstm.itertuples(): data[("LSTM", row.sampler)] = row.f1
+    for row in rnn.itertuples():  data[("RNN",  row.sampler)] = row.f1
+    for row in gan.itertuples():  data[("GAN",  row.sampler)] = row.f1
+    for row in tfm.itertuples():  data[("Transformer", row.sampler)] = row.f1
+
+    samplers = ["ROS", "SMOTE", "ADASYN", "AGSS"]
+    models   = ["LSTM", "RNN", "GAN", "Transformer"]
+    fig, ax = plt.subplots(figsize=(12, 6))
+    _grouped_bar(ax, data, models, samplers,
+                 "F1-score (fraud class)",
+                 "Phase 1 — Creditcard Oversampling: F1 by Model & Sampler\n"
+                 "(5-fold CV; Transformer at thresh=0.5, AGSS adaptive eps=4.838)",
+                 (0.0, 1.02))
+    plt.tight_layout()
+    os.makedirs(FIGURES_DIR, exist_ok=True)
+    out = os.path.join(FIGURES_DIR, "fig_phase1_over_all_models.png")
+    plt.savefig(out, dpi=150); plt.close(); print(f"Saved: {out}")
+
+
+def fig_phase1_under_all_models():
+    lstm_rnn = pd.read_csv(os.path.join(RESULTS_DIR, "phase1_under_creditcard.csv"))
+    gan      = pd.read_csv(os.path.join(RESULTS_DIR, "phase1_gan_under_creditcard.csv"))
+    tfm      = pd.read_csv(os.path.join(RESULTS_DIR, "phase1_transformer_under_creditcard.csv"))
+
+    data = {}
+    for row in lstm_rnn.itertuples():
+        data[(row.model, row.sampler)] = row.f1
+    for row in gan.itertuples():
+        data[("GAN", row.sampler)] = row.f1
+    for row in tfm.itertuples():
+        data[("Transformer", row.sampler)] = row.f1
+
+    samplers = ["AGSS", "RUS", "TomekLinks", "ENN", "NearMiss"]
+    models   = ["LSTM", "RNN", "GAN", "Transformer"]
+    fig, ax = plt.subplots(figsize=(14, 6))
+    _grouped_bar(ax, data, models, samplers,
+                 "F1-score (fraud class, tuned threshold)",
+                 "Phase 1 — Creditcard Undersampling: F1 by Model & Sampler\n"
+                 "(5-fold CV, post-hoc threshold tuning)",
+                 (0.0, 1.02))
+    plt.tight_layout()
+    os.makedirs(FIGURES_DIR, exist_ok=True)
+    out = os.path.join(FIGURES_DIR, "fig_phase1_under_all_models.png")
+    plt.savefig(out, dpi=150); plt.close(); print(f"Saved: {out}")
+
+
+def fig_phase2_over_all_models():
+    lstm_rnn = pd.read_csv(os.path.join(RESULTS_DIR, "phase2_german_final.csv"))
+    gan      = pd.read_csv(os.path.join(RESULTS_DIR, "phase2_gan_over_german.csv"))
+    tfm      = pd.read_csv(os.path.join(RESULTS_DIR, "phase2_transformer_over_german.csv"))
+
+    data = {}
+    for row in lstm_rnn.itertuples():
+        data[(row.model, row.sampler)] = row.f1_good
+    for row in gan.itertuples():
+        data[("GAN", row.sampler)] = row.f1_good
+    for row in tfm.itertuples():
+        data[("Transformer", row.sampler)] = row.f1_good
+
+    samplers = ["ROS", "SMOTE", "ADASYN", "AGSS"]
+    models   = ["LSTM", "RNN", "GAN", "Transformer"]
+    fig, ax = plt.subplots(figsize=(12, 6))
+    _grouped_bar(ax, data, models, samplers,
+                 "F1-score (good credit class)",
+                 "Phase 2 — German Oversampling: F1 (good class) by Model & Sampler\n"
+                 "(5-fold CV, tuned threshold)",
+                 (0.55, 0.92), annotate=True)
+    ax.axhline(0.8489, color="darkred", linestyle=":", linewidth=1.2,
+               label="Paper RNN+AGSS (0.8489)")
+    ax.legend(title="Model", fontsize=9)
+    plt.tight_layout()
+    os.makedirs(FIGURES_DIR, exist_ok=True)
+    out = os.path.join(FIGURES_DIR, "fig_phase2_over_all_models.png")
+    plt.savefig(out, dpi=150); plt.close(); print(f"Saved: {out}")
+
+
+def fig_phase2_under_all_models():
+    lstm_rnn = pd.read_csv(os.path.join(RESULTS_DIR, "phase2_under_german.csv"))
+    gan      = pd.read_csv(os.path.join(RESULTS_DIR, "phase2_gan_under_german.csv"))
+    tfm      = pd.read_csv(os.path.join(RESULTS_DIR, "phase2_transformer_under_german.csv"))
+
+    data = {}
+    for row in lstm_rnn.itertuples():
+        data[(row.model, row.sampler)] = row.f1_good
+    for row in gan.itertuples():
+        data[("GAN", row.sampler)] = row.f1_good
+    for row in tfm.itertuples():
+        data[("Transformer", row.sampler)] = row.f1_good
+
+    samplers = ["AGSS", "RUS", "TomekLinks", "ENN", "NearMiss"]
+    models   = ["LSTM", "RNN", "GAN", "Transformer"]
+    fig, ax = plt.subplots(figsize=(14, 6))
+    _grouped_bar(ax, data, models, samplers,
+                 "F1-score (good credit class)",
+                 "Phase 2 — German Undersampling: F1 (good class) by Model & Sampler\n"
+                 "(5-fold CV, tuned threshold)",
+                 (0.55, 0.92), annotate=True)
+    ax.axhline(0.8601, color="darkred", linestyle=":", linewidth=1.2,
+               label="Paper RNN+AGSS under (0.8601)")
+    ax.legend(title="Model", fontsize=9)
+    plt.tight_layout()
+    os.makedirs(FIGURES_DIR, exist_ok=True)
+    out = os.path.join(FIGURES_DIR, "fig_phase2_under_all_models.png")
+    plt.savefig(out, dpi=150); plt.close(); print(f"Saved: {out}")
+
+
 if __name__ == "__main__":
     df = load()
     fig_metrics_bar(df)
@@ -348,5 +493,10 @@ if __name__ == "__main__":
 
     fig_under_german(os.path.join(RESULTS_DIR, "phase2_under_german.csv"))
     fig_under_creditcard(os.path.join(RESULTS_DIR, "phase1_under_creditcard.csv"))
+
+    fig_phase1_over_all_models()
+    fig_phase1_under_all_models()
+    fig_phase2_over_all_models()
+    fig_phase2_under_all_models()
 
     print("\nAll visualizations saved to figures/")
