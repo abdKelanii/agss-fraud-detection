@@ -1,0 +1,10 @@
+{
+  "d_model": 128,
+  "epochs": 300,
+  "lr": 0.0005,
+  "f1_good": 0.8241,
+  "f1_bad": 0.0867,
+  "accuracy": 0.705,
+  "roc_auc": 0.6494,
+  "threshold": 0.9
+}

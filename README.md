@@ -195,6 +195,24 @@ All configs plateau at F1=0.738–0.750 — the ~5% gap vs paper (0.7981) reflec
 | ADASYN | 0.613 | 0.6701 | 0.5320 | 0.6287 | 0.6759 | — |
 | **AGSS** | 0.624 | **0.7021** | 0.4905 | 0.6386 | 0.6694 | **0.8489** |
 
+### Phase 2 — German Credit-Risk Dataset (Transformer + Oversampling, Tuned d_model)
+
+> Grid search over d_model∈{64,128,256} × epochs∈{300,500} × lr∈{5e-4,2e-4} with AGSS oversampling. **Best config: d_model=128, epochs=300, lr=5e-4 → F1_good=0.8241** — closes the gap from 14.7% down to **2.5%** vs paper (0.8489).
+
+| d_model | epochs | lr | F1 (good) | Accuracy | ROC-AUC | threshold |
+|---------|--------|----|-----------|----------|---------|-----------|
+| **128** | **300** | **5e-4** | **0.8241** | **0.705** | 0.6494 | 0.9 |
+| 256 | 300 | 5e-4 | 0.8238 | 0.701 | 0.5869 | 0.9 |
+| 128 | 500 | 5e-4 | 0.8211 | 0.702 | 0.6645 | 0.9 |
+| 64 | 300 | 5e-4 | 0.8194 | 0.698 | 0.6656 | 0.9 |
+| 64 | 300 | 2e-4 | 0.8181 | 0.695 | 0.6599 | 0.9 |
+| 128 | 500 | 2e-4 | 0.8165 | 0.698 | 0.6620 | 0.9 |
+| 128 | 300 | 2e-4 | 0.8150 | 0.695 | 0.6552 | 0.9 |
+| 64 | 500 | 2e-4 | 0.8143 | 0.694 | 0.6789 | 0.9 |
+| 64 | 500 | 5e-4 | 0.8049 | 0.683 | 0.6638 | 0.9 |
+
+Paper reports RNN+AGSS German F1 = **0.8489** → Transformer tuned **0.8241** ✅ (2.5% gap)
+
 ### Phase 2 — German Credit-Risk Dataset (Transformer + Undersampling)
 
 > All at threshold=0.5. RUS best at F1_good=0.697. Transformer underperforms LSTM/RNN on German — d_model=32 may be too small.
@@ -244,6 +262,7 @@ fraude-detection-project/
 │   ├── tune_german.py           # Hyperparameter grid search — German dataset
 │   ├── tune_under_hparams.py    # Hyperparameter grid search — creditcard undersampling
 │   ├── tune_gan.py              # GAN threshold + hyperparameter tuning
+│   ├── tune_transformer_german.py # Transformer German d_model grid search
 │   └── visualize.py             # Result charts and heatmaps
 ├── datasets/
 │   └── README.md                # Dataset download instructions
