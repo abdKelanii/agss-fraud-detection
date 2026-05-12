@@ -480,6 +480,40 @@ def fig_phase2_under_all_models():
     plt.savefig(out, dpi=150); plt.close(); print(f"Saved: {out}")
 
 
+def fig_transformer_german_tuning():
+    path = os.path.join(RESULTS_DIR, "transformer_german_grid.csv")
+    if not os.path.exists(path):
+        print(f"Skipping Transformer German tuning chart — {path} not found.")
+        return
+    df = pd.read_csv(path).sort_values("f1_good", ascending=False)
+
+    labels = [f"d={int(r.d_model)}\ne={int(r.epochs)}\nlr={r.lr:.0e}" for _, r in df.iterrows()]
+    colors = ["#9B59B6" if i == 0 else "#C39BD3" for i in range(len(df))]
+
+    fig, ax = plt.subplots(figsize=(12, 5))
+    bars = ax.bar(range(len(df)), df["f1_good"], color=colors, edgecolor="white", linewidth=0.5)
+    for bar, v in zip(bars, df["f1_good"]):
+        ax.text(bar.get_x() + bar.get_width()/2, v + 0.003, f"{v:.4f}",
+                ha="center", va="bottom", fontsize=8, fontweight="bold")
+
+    ax.axhline(0.8489, color="darkred", linestyle=":", linewidth=1.2, label="Paper RNN+AGSS (0.8489)")
+    ax.axhline(0.7021, color="gray", linestyle="--", linewidth=1.0, label="Baseline d_model=32 (0.7021)")
+    ax.set_xticks(range(len(df)))
+    ax.set_xticklabels(labels, fontsize=8)
+    ax.set_ylim(0.65, 0.90)
+    ax.set_ylabel("F1-score (good credit class)", fontsize=11)
+    ax.set_title("Transformer German Tuning — d_model Grid Search (AGSS oversampling, 5-fold CV)\n"
+                 "Best: d_model=128, epochs=300, lr=5e-4 → F1=0.8241 (gap: 14.7% → 2.5%)",
+                 fontsize=11, fontweight="bold")
+    ax.legend(fontsize=9)
+    ax.yaxis.grid(True, linestyle="--", alpha=0.5)
+    ax.set_axisbelow(True)
+    plt.tight_layout()
+    os.makedirs(FIGURES_DIR, exist_ok=True)
+    out = os.path.join(FIGURES_DIR, "fig_transformer_german_tuning.png")
+    plt.savefig(out, dpi=150); plt.close(); print(f"Saved: {out}")
+
+
 if __name__ == "__main__":
     df = load()
     fig_metrics_bar(df)
@@ -498,5 +532,6 @@ if __name__ == "__main__":
     fig_phase1_under_all_models()
     fig_phase2_over_all_models()
     fig_phase2_under_all_models()
+    fig_transformer_german_tuning()
 
     print("\nAll visualizations saved to figures/")
