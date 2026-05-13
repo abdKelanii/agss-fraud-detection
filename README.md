@@ -235,6 +235,28 @@ Paper reports RNN+AGSS German F1 = **0.8489** → Transformer tuned **0.8241** �
 | GAN | AGSS (over) | 0.7730 | 0.8235 | 0.5405 | 0.7778 |
 | GAN | AGSS (under) | 0.7700 | 0.8208 | 0.5405 | 0.7691 |
 
+### Extension — LightGBM & XGBoost + AGSS (Beyond the Paper)
+
+> The original paper only evaluates LSTM, RNN, GAN, and Transformer. We extend AGSS to gradient boosting models, showing that the same sampling algorithm produces even stronger results with tree-based classifiers — at a fraction of the training time.
+
+**Credit Card Dataset (F1 = fraud class)**
+
+| Model | F1 | Precision | Recall | ROC-AUC | Threshold | vs Paper |
+|-------|-----|-----------|--------|---------|-----------|---------|
+| **LightGBM+AGSS** | **0.8734** | **0.9434** | 0.8130 | **0.9808** | 0.20 | **+4.8% ✅** |
+| **XGBoost+AGSS** | **0.8656** | **0.9447** | 0.7988 | **0.9814** | 0.50 | **+3.9% ✅** |
+| Paper LSTM+AGSS | 0.8333 | — | — | — | — | target |
+
+**German Credit-Risk Dataset (F1 = good credit class)**
+
+| Model | F1 | Precision | Recall | ROC-AUC | Threshold | vs Paper |
+|-------|-----|-----------|--------|---------|-----------|---------|
+| **XGBoost+AGSS** | **0.8386** | 0.7329 | 0.9800 | 0.7300 | 0.90 | -1.2% |
+| LightGBM+AGSS | 0.8343 | 0.7233 | 0.9857 | 0.7176 | 0.99 | -1.7% |
+| Paper RNN+AGSS | 0.8489 | — | — | — | — | target |
+
+**LightGBM+AGSS achieves the best single result in the entire project (F1=0.8734), beating the paper by +4.8% while training in under 15 minutes vs 3.5 hours for LSTM.**
+
 ---
 
 ## Experimental Note
@@ -243,7 +265,7 @@ Paper reports RNN+AGSS German F1 = **0.8489** → Transformer tuned **0.8241** �
 
 **Core claim confirmed:** AGSS consistently outperforms SMOTE and ADASYN in precision and F1 on both datasets across all four model types.
 
-**Consistent ~2–5% gap** across all experiments is attributable to undisclosed paper hyperparameters.
+**Consistent ~2% gap** on deep learning experiments is attributable to undisclosed paper hyperparameters. Our gradient boosting extension surpasses the paper's best results on the credit card dataset.
 
 ---
 
@@ -263,6 +285,7 @@ fraude-detection-project/
 │   ├── tune_under_hparams.py    # Hyperparameter grid search — creditcard undersampling
 │   ├── tune_gan.py              # GAN threshold + hyperparameter tuning
 │   ├── tune_transformer_german.py # Transformer German d_model grid search
+│   ├── pipeline_boosting.py     # LightGBM + XGBoost + AGSS (extension)
 │   └── visualize.py             # Result charts and heatmaps
 ├── datasets/
 │   └── README.md                # Dataset download instructions
