@@ -1,0 +1,3 @@
+model,f1,precision,recall,accuracy,roc_auc,threshold,runtime_s
+LightGBM,0.8734,0.9434,0.813,0.9996,0.9808,0.2,813.9
+XGBoost,0.8656,0.9447,0.7988,0.9996,0.9814,0.5,1563.1
