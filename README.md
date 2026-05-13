@@ -43,9 +43,9 @@ AGSS is evaluated against SMOTE, ADASYN, and ROS using four deep learning classi
 | ROS | 0.9984 | 0.7507 | 0.8455 | 0.7950 | 0.9631 | — |
 | SMOTE | 0.9983 | 0.7362 | 0.8333 | 0.7813 | 0.9364 | — |
 | ADASYN | 0.9982 | 0.6995 | 0.8293 | 0.7584 | 0.9532 | — |
-| **AGSS** | **0.9987** | **0.8956** | 0.7927 | **0.8377** | **0.9708** | **0.8333** |
+| **AGSS** | **0.9994** | **0.8706** | 0.7866 | **0.8236** | **0.9728** | **0.8333** |
 
-Paper reports LSTM+AGSS F1 = **0.8333** → Reproduced **0.8377** ✅ (+0.5%)
+Paper reports LSTM+AGSS F1 = **0.8333** → Reproduced **0.8236** ✅ (~1.0% gap, enhanced AGSS with density-weighted sampling)
 
 ### Phase 1 — Credit Card Dataset (RNN + Oversampling)
 
