@@ -1,0 +1,86 @@
+---
+import Layout from '../layouts/Layout.astro';
+
+const steps = [
+  { n:'1', title:'Extract Minority Samples', desc:'Isolate all fraud/bad-credit samples from the training fold. These form the basis for synthetic generation.', color:'text-primary-400' },
+  { n:'2', title:'DBSCAN Clustering',        desc:'Apply DBSCAN (eps=0.8, min_samples=3) to find dense minority regions. Enhanced: if <2 clusters found, search for multi-cluster eps (p5→p20 of k-NN distances).', color:'text-purple-400' },
+  { n:'3', title:'KNN Within Each Cluster',  desc:'For each dense cluster, fit a k-nearest-neighbours graph (k=3). Points with higher local density receive proportionally more synthetic samples (density-weighted).', color:'text-accent-400' },
+  { n:'4', title:'Curvature Interpolation',  desc:'For each synthetic sample: pick base point p and neighbour q, then: x_syn = p + α(q−p) + γ·sin(θ)·perp(q−p). The curvature term adds controlled variation.', color:'text-amber-400' },
+  { n:'5', title:'Combine & Train',          desc:'Merge synthetic minority samples with the original training data. The balanced dataset is used to train the classifier for this fold only.', color:'text-rose-400' },
+];
+---
+
+<Layout title="AGSS Algorithm">
+  <section class="max-w-4xl mx-auto px-6 py-20">
+
+    <div data-animate class="mb-12">
+      <p class="text-xs font-semibold text-accent-400 uppercase tracking-widest mb-2">Core Algorithm</p>
+      <h1 class="text-4xl md:text-5xl font-extrabold text-white mb-4">How AGSS Works</h1>
+      <p class="text-gray-400 max-w-2xl">
+        Adaptive Generative Synthetic Sampling — generates synthetic minority samples
+        only within <em class="text-gray-200">dense, cluster-verified</em> regions,
+        avoiding the noisy boundary areas that SMOTE and ADASYN oversample blindly.
+      </p>
+    </div>
+
+    <!-- Steps -->
+    <div class="space-y-4 mb-16">
+      {steps.map((s, i) => (
+        <div data-animate style={`animation-delay:${i*80}ms`}
+             class="glass glass-hover rounded-2xl p-6 flex gap-5">
+          <div class={`w-10 h-10 rounded-xl glass flex items-center justify-center
+                       text-lg font-extrabold flex-shrink-0 ${s.color}`}>
+            {s.n}
+          </div>
+          <div>
+            <h3 class={`font-bold mb-1 ${s.color}`}>{s.title}</h3>
+            <p class="text-gray-400 text-sm leading-relaxed">{s.desc}</p>
+          </div>
+        </div>
+      ))}
+    </div>
+
+    <!-- Formula -->
+    <div data-animate class="glass rounded-2xl p-8 mb-8 border-amber-500/20 bg-amber-500/5">
+      <h2 class="text-lg font-bold text-white mb-4">Interpolation Formula</h2>
+      <div class="font-mono text-lg text-center py-6 text-amber-300">
+        x<sub>syn</sub> = p + α·(q − p) + γ·sin(θ)·perp(q − p)
+      </div>
+      <div class="grid md:grid-cols-2 gap-3 mt-4">
+        {[
+          ['α', 'Uniform(0,1)', 'Linear interpolation weight'],
+          ['γ', 'Uniform(0, 0.1)', 'Curvature magnitude'],
+          ['θ', 'Uniform(0, 2π)', 'Curvature direction angle'],
+          ['perp', 'Random unit vector ⊥ (q−p)', 'Perpendicular component'],
+        ].map(([sym, range, desc]) => (
+          <div class="glass rounded-lg p-3 flex gap-3 items-start">
+            <span class="font-mono text-amber-400 font-bold w-12 flex-shrink-0">{sym}</span>
+            <div>
+              <p class="text-xs text-gray-300 font-mono">{range}</p>
+              <p class="text-xs text-gray-500">{desc}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+
+    <!-- AGSS vs SMOTE -->
+    <div data-animate class="glass rounded-2xl p-8">
+      <h2 class="text-lg font-bold text-white mb-6">AGSS vs SMOTE vs ADASYN</h2>
+      <div class="grid md:grid-cols-3 gap-4">
+        {[
+          { name:'SMOTE', pro:'Fast, simple', con:'Generates near decision boundary', color:'text-gray-400' },
+          { name:'ADASYN', pro:'Focuses on hard samples', con:'Amplifies noisy boundary regions', color:'text-gray-400' },
+          { name:'AGSS',  pro:'Cluster-aware, high precision', con:'Slower (Python loop)', color:'text-accent-400' },
+        ].map(m => (
+          <div class={`glass rounded-xl p-5 ${m.name==='AGSS' ? 'border-accent-500/30 bg-accent-500/5' : ''}`}>
+            <p class={`font-bold mb-3 ${m.color}`}>{m.name}</p>
+            <p class="text-xs text-gray-400 mb-2">✓ {m.pro}</p>
+            <p class="text-xs text-gray-500">✗ {m.con}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+
+  </section>
+</Layout>

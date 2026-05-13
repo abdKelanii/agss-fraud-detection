@@ -1,0 +1,97 @@
+---
+import { ViewTransitions } from 'astro:transitions';
+export interface Props { title: string; description?: string; }
+const { title, description = 'AGSS Fraud Detection — Paper Reproduction & Extension' } = Astro.props;
+---
+<!doctype html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{title} | AGSS Fraud Detection</title>
+  <meta name="description" content={description} />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <ViewTransitions />
+  <style>
+    html { background: #0a0a0f; }
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: #0a0a0f; }
+    ::-webkit-scrollbar-thumb { background: #4338ca; border-radius: 3px; }
+    .glass { background: rgba(255,255,255,0.03); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.06); }
+    .glass-hover { transition: all 0.3s ease; }
+    .glass-hover:hover { background: rgba(99,102,241,0.08); border-color: rgba(99,102,241,0.3); transform: translateY(-2px); box-shadow: 0 8px 32px rgba(99,102,241,0.15); }
+    .gradient-text { background: linear-gradient(135deg, #818cf8 0%, #34d399 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    .hero-glow { background: radial-gradient(ellipse 80% 50% at 50% -10%, rgba(99,102,241,0.25), transparent); }
+    [data-animate] { opacity: 0; }
+    [data-animate].visible { animation: fadeUp 0.6s ease forwards; }
+    @keyframes fadeUp { from { opacity:0; transform:translateY(24px); } to { opacity:1; transform:translateY(0); } }
+
+    /* Page transition animations */
+    @keyframes pageEnter { from { opacity:0; transform:translateY(14px); } to { opacity:1; transform:translateY(0); } }
+    @keyframes pageExit  { from { opacity:1; transform:translateY(0);   } to { opacity:0; transform:translateY(-10px); } }
+    ::view-transition-old(root) {
+      animation: pageExit 0.25s cubic-bezier(0.4,0,1,1) forwards;
+    }
+    ::view-transition-new(root) {
+      animation: pageEnter 0.35s cubic-bezier(0,0,0.2,1) forwards;
+    }
+    /* Nav stays stable during transitions */
+    nav { view-transition-name: nav; }
+    ::view-transition-old(nav),
+    ::view-transition-new(nav) { animation: none; }
+  </style>
+</head>
+<body class="bg-[#0a0a0f] text-gray-100 font-sans antialiased">
+
+  <!-- Nav -->
+  <nav class="fixed top-0 left-0 right-0 z-50 glass border-b border-white/5">
+    <div class="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+      <a href="/" class="flex items-center gap-2 font-bold text-lg">
+        <span class="w-7 h-7 rounded-lg bg-primary-600 flex items-center justify-center text-sm">🛡</span>
+        <span class="gradient-text">AGSS Research</span>
+      </a>
+      <div class="hidden md:flex items-center gap-6 text-sm text-gray-400">
+        <a href="/" class="hover:text-white transition-colors">Home</a>
+        <a href="/creditcard" class="hover:text-white transition-colors">Credit Card</a>
+        <a href="/german" class="hover:text-white transition-colors">German</a>
+        <a href="/algorithm" class="hover:text-white transition-colors">Algorithm</a>
+        <a href="/extension" class="hover:text-white transition-colors">Extension</a>
+        <a href="/presentation" class="hover:text-white transition-colors">Presentation</a>
+        <a href="https://github.com/abdKelanii/agss-fraud-detection" target="_blank"
+           class="px-4 py-1.5 rounded-full bg-primary-600 hover:bg-primary-500 text-white text-sm transition-all hover:shadow-lg hover:shadow-primary-600/30">
+          GitHub →
+        </a>
+      </div>
+    </div>
+  </nav>
+
+  <main class="pt-16">
+    <slot />
+  </main>
+
+  <!-- Footer -->
+  <footer class="mt-24 border-t border-white/5 py-10 text-center text-gray-500 text-sm">
+    <p>Reproduction of <span class="text-gray-300">Nama & Sharmila Banu, IEEE Access 2026</span> · by Abdalsalam Hijazi Kelani</p>
+    <p class="mt-1">DOI: 10.1109/ACCESS.2025.3649833</p>
+  </footer>
+
+  <script>
+    function initPage() {
+      const animObs = new IntersectionObserver((entries) => {
+        entries.forEach((entry, i) => {
+          if (entry.isIntersecting) {
+            setTimeout(() => entry.target.classList.add('visible'), i * 80);
+            animObs.unobserve(entry.target);
+          }
+        });
+      }, { threshold: 0.1 });
+      document.querySelectorAll('[data-animate]:not(.visible)').forEach(el => animObs.observe(el));
+    }
+
+    document.addEventListener('astro:page-load', initPage);
+    initPage();
+  </script>
+</body>
+</html>

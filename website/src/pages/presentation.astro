@@ -1,0 +1,782 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout title="Presentation">
+
+<div id="deck" class="fixed inset-0 z-[100] bg-[#0a0a0f] flex flex-col" style="top:0">
+
+  <!-- Progress bar -->
+  <div id="progress" class="absolute top-0 left-0 h-[3px] z-10 transition-all duration-500"
+       style="width:6.67%; background: linear-gradient(90deg,#6366f1,#34d399)"></div>
+
+  <!-- Top bar -->
+  <div class="absolute top-4 right-5 flex items-center gap-4 z-10">
+    <span id="counter" class="text-xs font-mono text-gray-500">1 / 15</span>
+    <a id="exit-btn" href="/" class="text-xs text-gray-400 hover:text-white transition-colors px-3 py-1.5 rounded-full"
+       style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08)">
+      ✕ Exit
+    </a>
+  </div>
+
+  <!-- Slides -->
+  <div id="slides-wrap" class="relative flex-1 overflow-hidden">
+
+    <!-- ───────── SLIDE 1: Title ───────── -->
+    <section class="slide active">
+      <div class="max-w-3xl mx-auto px-10 text-center">
+        <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs text-primary-400 font-medium mb-8"
+             style="background:rgba(99,102,241,0.1);border:1px solid rgba(99,102,241,0.2)">
+          <span class="w-2 h-2 rounded-full bg-accent-400 animate-pulse"></span>
+          IEEE Access 2026 · Reproduction + Extension
+        </div>
+        <h1 class="text-6xl font-extrabold leading-tight mb-5">
+          <span class="gradient-text">AGSS</span>
+          <span class="text-white"> Fraud</span><br/>
+          <span class="text-white">Detection</span>
+        </h1>
+        <p class="text-lg text-gray-400 mb-10">
+          Full reproduction of <span class="text-gray-200 font-semibold">Nama & Sharmila Banu (2026)</span><br/>
+          + extension to gradient boosting models
+        </p>
+        <div class="flex flex-wrap justify-center gap-3">
+          {[['6 Models','#818cf8'],['2 Datasets','#34d399'],['12+ Experiments','#f59e0b'],['Best: +4.8% vs Paper','#34d399']].map(([l,c]) => (
+            <span class="glass px-4 py-2 rounded-full text-sm font-semibold" style={`color:${c}`}>{l}</span>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <!-- ───────── SLIDE 2: The Problem ───────── -->
+    <section class="slide">
+      <div class="max-w-4xl mx-auto px-10 w-full">
+        <p class="slide-label text-rose-400">The Challenge</p>
+        <h2 class="slide-h2">Financial Fraud Detection</h2>
+        <div class="grid md:grid-cols-2 gap-5">
+          <div class="space-y-3">
+            {[
+              ['💰','$32B+ annual losses','Global credit card fraud costs escalate every year'],
+              ['⚖️','Severe class imbalance','Only 0.17% of transactions are fraudulent'],
+              ['🤖','Model bias','Standard classifiers predict "not fraud" for everything'],
+              ['🎯','Goal','High recall on fraud without flooding with false positives'],
+            ].map(([icon,title,desc]) => (
+              <div class="glass rounded-xl p-4 flex gap-3">
+                <span class="text-xl">{icon}</span>
+                <div>
+                  <p class="text-sm font-semibold text-white">{title}</p>
+                  <p class="text-xs text-gray-400 mt-0.5">{desc}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+          <div class="glass rounded-2xl p-6 flex flex-col justify-center gap-6">
+            <div>
+              <p class="text-xs font-semibold text-primary-400 uppercase tracking-wider mb-3">Credit Card (Kaggle)</p>
+              <p class="text-sm text-gray-400">284,807 transactions</p>
+              <p class="text-sm text-gray-400">492 fraud — <span class="text-rose-400 font-mono font-bold">0.17%</span></p>
+              <p class="text-sm text-gray-400">30 PCA features</p>
+            </div>
+            <div class="border-t border-white/5 pt-5">
+              <p class="text-xs font-semibold text-purple-400 uppercase tracking-wider mb-3">German Credit (UCI)</p>
+              <p class="text-sm text-gray-400">1,000 loan records</p>
+              <p class="text-sm text-gray-400">300 bad credit — <span class="text-amber-400 font-mono font-bold">30%</span></p>
+              <p class="text-sm text-gray-400">20 mixed features</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ───────── SLIDE 3: Existing Methods ───────── -->
+    <section class="slide">
+      <div class="max-w-4xl mx-auto px-10 w-full">
+        <p class="slide-label text-amber-400">Background</p>
+        <h2 class="slide-h2">Oversampling Approaches</h2>
+        <div class="grid md:grid-cols-3 gap-4 mb-6">
+          {[
+            {name:'SMOTE',  pro:'Simple & fast',             con:'Generates samples near noisy boundary', accent:false},
+            {name:'ADASYN', pro:'Focuses on hard samples',   con:'Amplifies noisy boundary regions',      accent:false},
+            {name:'AGSS',   pro:'Cluster-aware, high prec.', con:'Slower — but far more targeted',        accent:true },
+          ].map(m => (
+            <div class={`glass rounded-2xl p-6 ${m.accent ? 'border-accent-500/30 bg-accent-500/5' : ''}`}>
+              <p class={`text-2xl font-extrabold mb-3 ${m.accent ? 'text-accent-400' : 'text-gray-300'}`}>{m.name}</p>
+              <p class="text-sm text-gray-300 mb-2">✓ {m.pro}</p>
+              <p class="text-sm text-gray-500">✗ {m.con}</p>
+            </div>
+          ))}
+        </div>
+        <div class="glass rounded-xl p-5 border-accent-500/20 bg-accent-500/5">
+          <p class="text-sm text-gray-300">
+            <span class="text-accent-400 font-bold">AGSS key insight:</span> Generate synthetic samples only within
+            <em class="text-gray-200"> dense, cluster-verified</em> minority regions —
+            avoiding the noisy boundaries that fool SMOTE and ADASYN.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ───────── SLIDE 4: Visual Comparison ───────── -->
+    <section class="slide">
+      <div class="max-w-5xl mx-auto px-8 w-full">
+        <p class="slide-label text-accent-400">Visual Proof</p>
+        <h2 class="slide-h2" style="margin-bottom:1rem">SMOTE vs AGSS — Same Data, Different Samples</h2>
+
+        <!-- 2-panel main image -->
+        <div class="glass rounded-2xl overflow-hidden mb-4" style="border-color:rgba(255,255,255,0.08)">
+          <img src="/figures/compare_smote_agss_2panel.png"
+               alt="SMOTE vs AGSS visual comparison"
+               class="w-full object-contain" style="max-height:340px" />
+        </div>
+
+        <!-- 3-line callout row -->
+        <div class="grid grid-cols-3 gap-4">
+          <div class="glass rounded-xl p-4" style="border-color:rgba(251,191,36,0.2);background:rgba(251,191,36,0.04)">
+            <p class="text-xs font-bold text-amber-400 mb-1">SMOTE problem</p>
+            <p class="text-xs text-gray-400">Interpolates between <em class="text-gray-200">all</em> k-NN pairs — including noisy outliers near the decision boundary. Synthetic chain pollutes the majority region.</p>
+          </div>
+          <div class="glass rounded-xl p-4" style="border-color:rgba(52,211,153,0.2);background:rgba(52,211,153,0.04)">
+            <p class="text-xs font-bold text-accent-400 mb-1">AGSS solution</p>
+            <p class="text-xs text-gray-400">DBSCAN first identifies <em class="text-gray-200">dense cluster cores</em>. Synthesis happens only inside dashed circles — noisy boundary points are ignored.</p>
+          </div>
+          <div class="glass rounded-xl p-4" style="border-color:rgba(129,140,248,0.2);background:rgba(129,140,248,0.04)">
+            <p class="text-xs font-bold text-primary-400 mb-1">Why it matters</p>
+            <p class="text-xs text-gray-400">Cleaner synthetic samples → fewer false fraud signals → higher precision without sacrificing recall. Confirmed by +4.8% F1 on Credit Card.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ───────── SLIDE 5: Original → SMOTE → AGSS progression ───────── -->
+    <section class="slide">
+      <div class="max-w-5xl mx-auto px-8 w-full">
+        <p class="slide-label text-accent-400">Step by Step</p>
+        <h2 class="slide-h2" style="margin-bottom:1rem">Original Data → Oversampled</h2>
+
+        <div class="glass rounded-2xl overflow-hidden mb-5" style="border-color:rgba(255,255,255,0.08)">
+          <img src="/figures/compare_smote_agss_3panel.png"
+               alt="Original data, SMOTE and AGSS comparison"
+               class="w-full object-contain" style="max-height:340px" />
+        </div>
+
+        <div class="grid grid-cols-3 gap-4 text-center">
+          {[
+            ['Original', 'Two tight minority clusters (purple/lavender) + 3 noisy boundary points (×)', 'text-gray-400'],
+            ['SMOTE', 'Orange diamonds chain through the noisy points — spreading into the majority cloud', 'text-amber-400'],
+            ['AGSS', 'Green diamonds stay tightly inside each cluster core — noisy points are skipped', 'text-accent-400'],
+          ].map(([title, desc, c]) => (
+            <div class="glass rounded-xl p-4">
+              <p class={`text-sm font-bold mb-1 ${c}`}>{title}</p>
+              <p class="text-xs text-gray-400">{desc}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <!-- ───────── SLIDE 6: The Paper ───────── -->
+    <section class="slide">
+      <div class="max-w-4xl mx-auto px-10 w-full">
+        <p class="slide-label text-primary-400">Source Paper</p>
+        <h2 class="slide-h2">Nama & Sharmila Banu, 2026</h2>
+        <p class="text-gray-400 text-sm mb-7">IEEE Access · DOI: 10.1109/ACCESS.2025.3649833</p>
+        <div class="grid md:grid-cols-2 gap-6">
+          <div>
+            <p class="text-xs text-gray-500 uppercase tracking-wider mb-3">Paper's Reported Results</p>
+            <div class="space-y-3">
+              {[
+                {dataset:'Credit Card', model:'LSTM + AGSS', f1:'0.8333', note:'Oversampling',   color:'text-primary-400'},
+                {dataset:'German',      model:'RNN + AGSS',  f1:'0.8489', note:'Oversampling',   color:'text-purple-400'},
+                {dataset:'German',      model:'RNN + AGSS',  f1:'0.8601', note:'Undersampling ★',color:'text-accent-400'},
+              ].map(r => (
+                <div class="glass rounded-xl px-4 py-3 flex justify-between items-center">
+                  <div>
+                    <p class={`text-sm font-semibold ${r.color}`}>{r.dataset}</p>
+                    <p class="text-xs text-gray-400">{r.model} · {r.note}</p>
+                  </div>
+                  <p class={`font-mono font-bold text-xl ${r.color}`}>{r.f1}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+          <div class="glass rounded-2xl p-6">
+            <p class="text-xs text-gray-500 uppercase tracking-wider mb-4">What We Did</p>
+            <div class="space-y-2.5 text-sm">
+              {[
+                ['✓','Reproduce all paper experiments','text-accent-400'],
+                ['✓','5-fold stratified cross-validation','text-accent-400'],
+                ['✓','Same datasets, same metrics','text-accent-400'],
+                ['+','Add Transformer architecture','text-primary-400'],
+                ['+','Add GAN-based oversampling','text-primary-400'],
+                ['+','Add LightGBM & XGBoost (extension)','text-amber-400'],
+              ].map(([icon,text,c]) => (
+                <p class="flex gap-2"><span class={`font-bold ${c}`}>{icon}</span><span class="text-gray-400">{text}</span></p>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ───────── SLIDE 5: AGSS Algorithm ───────── -->
+    <section class="slide">
+      <div class="max-w-4xl mx-auto px-10 w-full">
+        <p class="slide-label text-accent-400">Core Algorithm</p>
+        <h2 class="slide-h2">How AGSS Works</h2>
+        <div class="grid md:grid-cols-2 gap-5">
+          <div class="space-y-2.5">
+            {[
+              ['1','Extract minority samples',  'Isolate all fraud/bad-credit rows from the training fold','text-primary-400'],
+              ['2','DBSCAN clustering',         'eps=0.8, min_samples=3. Adaptive eps search if <2 clusters found','text-purple-400'],
+              ['3','KNN within each cluster',   'k=3 neighbours; density-weighted base point selection','text-accent-400'],
+              ['4','Curvature interpolation',   'x_syn = p + α(q−p) + γ·sin(θ)·perp(q−p)','text-amber-400'],
+              ['5','Combine & train',           'Merge synthetic + real data — for this fold only','text-rose-400'],
+            ].map(([n,title,desc,c]) => (
+              <div class={`glass rounded-xl px-4 py-3 flex gap-3 border-l-2`} style={`border-color:${c.replace('text-','').replace('-400','')}`}>
+                <span class={`font-extrabold text-lg w-5 flex-shrink-0 ${c}`}>{n}</span>
+                <div>
+                  <p class={`text-sm font-bold ${c}`}>{title}</p>
+                  <p class="text-xs text-gray-400 mt-0.5">{desc}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+          <div class="flex flex-col gap-4">
+            <div class="glass rounded-2xl p-5 border-amber-500/20 bg-amber-500/5 flex-1">
+              <p class="text-sm font-bold text-amber-400 mb-3">Interpolation Formula</p>
+              <p class="font-mono text-lg text-amber-300 text-center py-4">
+                x<sub>syn</sub> = p + α·(q−p) + γ·sin(θ)·perp(q−p)
+              </p>
+              <div class="grid grid-cols-2 gap-2">
+                {[['α','Uniform(0,1) — linear weight'],['γ','Uniform(0,0.1) — curvature'],['θ','Uniform(0,2π) — angle'],['perp','Random ⊥ unit vector']].map(([s,d]) => (
+                  <div class="text-xs">
+                    <span class="font-mono text-amber-400 font-bold">{s} </span>
+                    <span class="text-gray-500">{d}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div class="glass rounded-xl p-4 bg-accent-500/5 border-accent-500/20">
+              <p class="text-xs text-accent-400 font-semibold mb-1">Our AGSS enhancement</p>
+              <p class="text-xs text-gray-400">Multi-cluster eps search (p20→p5 of k-NN distances) + density-weighted base point sampling</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ───────── SLIDE 6: Setup ───────── -->
+    <section class="slide">
+      <div class="max-w-4xl mx-auto px-10 w-full">
+        <p class="slide-label text-primary-400">Methodology</p>
+        <h2 class="slide-h2">Experimental Setup</h2>
+        <div class="grid md:grid-cols-3 gap-4">
+          <div class="glass rounded-2xl p-5">
+            <p class="text-xs text-gray-500 uppercase tracking-wider mb-3">Models</p>
+            <div class="space-y-2">
+              {[['LSTM','#818cf8'],['RNN','#a78bfa'],['GAN (FraudGAN)','#f59e0b'],['Transformer','#c084fc'],['LightGBM ★','#34d399'],['XGBoost ★','#10b981']].map(([n,c]) => (
+                <div class="flex items-center gap-2 text-sm">
+                  <span class="w-2 h-2 rounded-full flex-shrink-0" style={`background:${c}`}></span>
+                  <span class="text-gray-300">{n}</span>
+                </div>
+              ))}
+              <p class="text-xs text-gray-500 pt-1">★ Extension — not in paper</p>
+            </div>
+          </div>
+          <div class="glass rounded-2xl p-5">
+            <p class="text-xs text-gray-500 uppercase tracking-wider mb-3">Samplers</p>
+            <div class="space-y-3">
+              <div>
+                <p class="text-xs text-accent-400 font-semibold mb-1">Oversampling</p>
+                {['AGSS','SMOTE','ADASYN','ROS'].map(s => <p class="text-sm text-gray-400 ml-2">· {s}</p>)}
+              </div>
+              <div>
+                <p class="text-xs text-primary-400 font-semibold mb-1">Undersampling</p>
+                {['TomekLinks','RUS','ENN','AGSS-under'].map(s => <p class="text-sm text-gray-400 ml-2">· {s}</p>)}
+              </div>
+            </div>
+          </div>
+          <div class="glass rounded-2xl p-5">
+            <p class="text-xs text-gray-500 uppercase tracking-wider mb-3">Evaluation</p>
+            <div class="space-y-3 text-sm">
+              <div>
+                <p class="text-xs text-amber-400 font-semibold mb-1">Protocol</p>
+                <p class="text-gray-400">5-fold stratified CV</p>
+                <p class="text-gray-400">Threshold sweep 0.1→0.99</p>
+              </div>
+              <div>
+                <p class="text-xs text-amber-400 font-semibold mb-1">Metrics</p>
+                {['F1-score (primary)','Precision','Recall','ROC-AUC'].map(m => <p class="text-gray-400">· {m}</p>)}
+              </div>
+              <div>
+                <p class="text-xs text-amber-400 font-semibold mb-1">Hardware</p>
+                <p class="text-gray-400">Apple M-series (MPS)</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ───────── SLIDE 7: Credit Card Results ───────── -->
+    <section class="slide">
+      <div class="max-w-4xl mx-auto px-10 w-full">
+        <p class="slide-label text-primary-400">Phase 1 Results</p>
+        <h2 class="slide-h2">Credit Card Dataset</h2>
+        <p class="text-gray-400 text-sm mb-6">F1-score on fraud class · Paper target: <span class="text-primary-400 font-mono font-bold">0.8333</span> (LSTM+AGSS)</p>
+        <div class="space-y-3">
+          {[
+            {model:'LightGBM + AGSS',  f1:0.8734, color:'#34d399', delta:'+4.8%'},
+            {model:'XGBoost + AGSS',   f1:0.8656, color:'#10b981', delta:'+3.9%'},
+            {model:'LSTM + AGSS',      f1:0.8236, color:'#818cf8', delta:'-1.2%'},
+            {model:'RNN + AGSS',       f1:0.8077, color:'#a78bfa', delta:'-3.1%'},
+            {model:'GAN + AGSS',       f1:0.7497, color:'#f59e0b', delta:'-10.0%'},
+            {model:'Transformer+AGSS', f1:0.3922, color:'#c084fc', delta:'tuned→0.82'},
+          ].map(r => (
+            <div class="flex items-center gap-4">
+              <p class="w-44 text-sm text-gray-200 flex-shrink-0 truncate">{r.model}</p>
+              <div class="flex-1 relative h-8 glass rounded-lg overflow-hidden">
+                <div class="h-full rounded-lg" style={`width:${r.f1*100}%; background:${r.color}22; border-right:2px solid ${r.color}`}></div>
+                <div class="absolute inset-0 flex items-center px-3">
+                  <span class="font-mono font-bold text-sm" style={`color:${r.color}`}>{r.f1.toFixed(4)}</span>
+                </div>
+                <div class="absolute top-0 bottom-0 w-px bg-white/40" style="left:83.33%"></div>
+              </div>
+              <span class={`text-xs font-bold w-20 text-right ${r.delta.startsWith('+') ? 'text-accent-400' : 'text-gray-500'}`}>{r.delta}</span>
+            </div>
+          ))}
+        </div>
+        <p class="text-xs text-gray-500 mt-3">Vertical line = paper LSTM+AGSS target (0.8333)</p>
+      </div>
+    </section>
+
+    <!-- ───────── SLIDE 8: German Results ───────── -->
+    <section class="slide">
+      <div class="max-w-4xl mx-auto px-10 w-full">
+        <p class="slide-label text-purple-400">Phase 2 Results</p>
+        <h2 class="slide-h2">German Credit Dataset</h2>
+        <p class="text-gray-400 text-sm mb-6">F1-score on good class · Paper target: <span class="text-purple-400 font-mono font-bold">0.8489</span> (RNN+AGSS)</p>
+        <div class="grid md:grid-cols-2 gap-6">
+          <div>
+            <p class="text-xs text-gray-500 uppercase tracking-wider mb-3">Oversampling — All models + AGSS</p>
+            <div class="space-y-2">
+              {[
+                {m:'XGBoost',    f1:0.8386,color:'#10b981'},
+                {m:'LightGBM',   f1:0.8343,color:'#34d399'},
+                {m:'RNN',        f1:0.8294,color:'#a78bfa'},
+                {m:'LSTM',       f1:0.8286,color:'#818cf8'},
+                {m:'Transformer',f1:0.8241,color:'#c084fc'},
+                {m:'GAN',        f1:0.8235,color:'#f59e0b'},
+              ].map(r => (
+                <div class="flex items-center gap-3">
+                  <span class="w-24 text-sm text-gray-300 flex-shrink-0">{r.m}</span>
+                  <div class="flex-1 relative h-6 glass rounded overflow-hidden">
+                    <div class="h-full" style={`width:${(r.f1/0.9)*100}%; background:${r.color}33; border-right:2px solid ${r.color}`}></div>
+                    <div class="absolute top-0 bottom-0 w-px bg-white/30" style="left:94.3%"></div>
+                  </div>
+                  <span class="font-mono text-sm font-bold w-16 text-right" style={`color:${r.color}`}>{r.f1.toFixed(4)}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+          <div>
+            <p class="text-xs text-gray-500 uppercase tracking-wider mb-3">Undersampling (selected)</p>
+            <div class="space-y-2.5">
+              {[
+                {m:'RNN',  s:'TomekLinks',f1:0.8328,best:true},
+                {m:'RNN',  s:'RUS',       f1:0.8298,best:false},
+                {m:'LSTM', s:'TomekLinks',f1:0.8297,best:false},
+                {m:'RNN',  s:'AGSS',      f1:0.8145,best:false},
+              ].map(r => (
+                <div class={`glass rounded-xl px-4 py-2.5 flex justify-between items-center ${r.best ? 'border-purple-500/30 bg-purple-500/5' : ''}`}>
+                  <div>
+                    <p class="text-sm font-semibold text-gray-200">{r.m} + {r.s}</p>
+                    <p class="text-xs text-gray-500">{((r.f1/0.8489-1)*100).toFixed(1)}% vs paper</p>
+                  </div>
+                  <p class="font-mono font-bold text-purple-400">{r.f1.toFixed(4)}</p>
+                </div>
+              ))}
+            </div>
+            <p class="text-xs text-gray-500 mt-3">Paper under target: 0.8601 — gap ≈ 3.2%</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ───────── SLIDE 9: Transformer ───────── -->
+    <section class="slide">
+      <div class="max-w-4xl mx-auto px-10 w-full">
+        <p class="slide-label text-purple-400">Deep Dive</p>
+        <h2 class="slide-h2">Transformer: Closing the Gap</h2>
+        <p class="text-gray-400 text-sm mb-7">Default d_model=32 left a 14.7% gap. Grid search recovered most of it.</p>
+        <div class="grid md:grid-cols-2 gap-6">
+          <div class="space-y-4">
+            <div class="glass rounded-2xl p-5 border-rose-500/20 bg-rose-500/5">
+              <p class="text-sm font-semibold text-rose-400 mb-2">Baseline — d_model = 32</p>
+              <p class="text-5xl font-extrabold font-mono text-rose-400">0.7021</p>
+              <p class="text-sm text-gray-500 mt-1">14.7% below paper target</p>
+            </div>
+            <div class="glass rounded-2xl p-5 border-purple-500/20 bg-purple-500/5">
+              <p class="text-sm font-semibold text-purple-400 mb-2">After Tuning — d_model = 128</p>
+              <p class="text-5xl font-extrabold font-mono text-purple-400">0.8241</p>
+              <p class="text-sm text-gray-500 mt-1">2.5% below paper target</p>
+            </div>
+          </div>
+          <div class="glass rounded-2xl p-6">
+            <p class="text-sm font-bold text-gray-300 mb-4">Grid Search</p>
+            <div class="space-y-3 text-sm mb-5">
+              {[
+                ['d_model',       '{32, 64, 128, 256}',  'text-purple-400'],
+                ['epochs',        '{100, 200, 300, 500}','text-accent-400'],
+                ['learning_rate', '{1e-3, 5e-4, 2e-4}',  'text-amber-400'],
+                ['threshold',     '0.1 → 0.99 sweep',   'text-primary-400'],
+              ].map(([k,v,c]) => (
+                <div class="flex justify-between">
+                  <span class={`font-mono font-semibold ${c}`}>{k}</span>
+                  <span class="text-gray-400">{v}</span>
+                </div>
+              ))}
+            </div>
+            <div class="border-t border-white/5 pt-4 space-y-2">
+              <p class="text-xs text-gray-400"><span class="text-accent-400 font-semibold">Best:</span> d_model=128, epochs=300, lr=5e-4, thresh=0.9</p>
+              <p class="text-xs text-gray-500">Insight: small tabular datasets need smaller, shallower transformers</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ───────── SLIDE 10: Extension ───────── -->
+    <section class="slide">
+      <div class="max-w-4xl mx-auto px-10 w-full">
+        <p class="slide-label text-accent-400">Extension Beyond Paper</p>
+        <h2 class="slide-h2">LightGBM & XGBoost + AGSS</h2>
+        <p class="text-gray-400 text-sm mb-7">The paper tests only deep learning. We apply AGSS to gradient boosting — and it wins.</p>
+        <div class="grid md:grid-cols-2 gap-6">
+          <div class="space-y-4">
+            <div class="glass rounded-2xl p-5 border-accent-500/30 bg-accent-500/5">
+              <div class="flex justify-between items-start mb-4">
+                <div>
+                  <p class="font-bold text-white">LightGBM + AGSS</p>
+                  <p class="text-xs text-gray-400">threshold = 0.20 · Credit Card</p>
+                </div>
+                <span class="text-xs bg-accent-500/20 text-accent-400 px-2 py-1 rounded-full font-bold">+4.8% vs paper</span>
+              </div>
+              <div class="grid grid-cols-2 gap-3">
+                {[['F1','0.8734','text-accent-400'],['ROC-AUC','0.9808','text-primary-400'],['Precision','0.9434','text-purple-400'],['Recall','0.8130','text-amber-400']].map(([l,v,c]) => (
+                  <div><p class={`text-xl font-bold font-mono ${c}`}>{v}</p><p class="text-xs text-gray-500">{l}</p></div>
+                ))}
+              </div>
+            </div>
+            <div class="glass rounded-xl p-4 flex justify-between items-center">
+              <div><p class="font-semibold text-white">XGBoost + AGSS</p><p class="text-xs text-gray-400">threshold = 0.50</p></div>
+              <div class="text-right"><p class="font-mono font-bold text-emerald-400 text-lg">0.8656</p><p class="text-xs text-gray-500">+3.9% vs paper</p></div>
+            </div>
+          </div>
+          <div class="glass rounded-2xl p-5">
+            <p class="text-sm font-bold text-gray-300 mb-4">Why It Works Better</p>
+            <div class="space-y-3">
+              {[
+                ['📊','Tabular advantage','Tree models capture non-linear interactions natively'],
+                ['⚡','Speed',            '<15 min vs 3.5 hrs for LSTM — enables rapid iteration'],
+                ['🎯','Threshold tuning', 'threshold=0.20 maximises F1 on this imbalanced dataset'],
+                ['🔒','AGSS synergy',     'Cluster-aware patterns that gradient boosting exploits directly'],
+              ].map(([icon,title,desc]) => (
+                <div class="flex gap-3">
+                  <span class="text-lg">{icon}</span>
+                  <div>
+                    <p class="text-sm font-semibold text-white">{title}</p>
+                    <p class="text-xs text-gray-400">{desc}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ───────── SLIDE 11: Key Findings ───────── -->
+    <section class="slide">
+      <div class="max-w-4xl mx-auto px-10 w-full">
+        <p class="slide-label text-amber-400">Findings</p>
+        <h2 class="slide-h2">What We Learned</h2>
+        <div class="grid md:grid-cols-2 gap-4">
+          {[
+            {icon:'✅',c:'text-accent-400',b:'border-accent-500/20 bg-accent-500/5',
+              title:'Successful reproduction',
+              desc:'~2% gap across 8 deep learning runs — within expected variance on Apple MPS GPU (non-deterministic).'},
+            {icon:'🚀',c:'text-primary-400',b:'border-primary-500/20 bg-primary-500/5',
+              title:'AGSS generalises',
+              desc:'Sampling algorithm transfers directly to gradient boosting — achieving +4.8% over the paper\'s best deep learning result.'},
+            {icon:'🎯',c:'text-amber-400',b:'border-amber-500/20 bg-amber-500/5',
+              title:'Threshold tuning is critical',
+              desc:'Post-hoc sweep (0.1→0.99) adds 5–10% F1 vs default 0.50. LightGBM optimal at 0.20 — not the conventional 0.50.'},
+            {icon:'🔬',c:'text-purple-400',b:'border-purple-500/20 bg-purple-500/5',
+              title:'Architecture must fit data scale',
+              desc:'Transformer needed d_model=128 (not 32) to match deep learning. Closed gap from 14.7% to 2.5% with hyperparameter tuning.'},
+          ].map(item => (
+            <div class={`glass rounded-2xl p-5 ${item.b}`}>
+              <div class="flex gap-3">
+                <span class="text-2xl">{item.icon}</span>
+                <div>
+                  <p class={`font-bold mb-1 ${item.c}`}>{item.title}</p>
+                  <p class="text-sm text-gray-400 leading-relaxed">{item.desc}</p>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <!-- ───────── SLIDE 12: Best Result ───────── -->
+    <section class="slide">
+      <div class="max-w-3xl mx-auto px-10 w-full text-center">
+        <p class="slide-label text-accent-400">Best Result</p>
+        <h2 class="text-3xl font-extrabold text-white mb-1">LightGBM + AGSS · Credit Card</h2>
+        <p class="text-gray-400 text-sm mb-8">5-fold CV · threshold=0.20 · training time &lt;15 min</p>
+        <div class="flex justify-center mb-10">
+          <div class="w-44 h-44 rounded-full flex flex-col items-center justify-center glass border-4 border-accent-500/60"
+               style="box-shadow:0 0 80px rgba(52,211,153,0.3)">
+            <p class="text-5xl font-extrabold text-accent-400">+4.8%</p>
+            <p class="text-sm text-gray-400 mt-1">vs paper best</p>
+          </div>
+        </div>
+        <div class="flex justify-center gap-8 flex-wrap">
+          {[['F1','0.8734','text-accent-400'],['Precision','0.9434','text-primary-400'],['Recall','0.8130','text-purple-400'],['ROC-AUC','0.9808','text-amber-400']].map(([l,v,c]) => (
+            <div>
+              <p class={`text-4xl font-extrabold font-mono ${c}`}>{v}</p>
+              <p class="text-sm text-gray-500 mt-1">{l}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <!-- ───────── SLIDE 13: Conclusion ───────── -->
+    <section class="slide">
+      <div class="max-w-3xl mx-auto px-10 w-full text-center">
+        <p class="slide-label text-primary-400">Conclusion</p>
+        <h2 class="text-5xl font-extrabold mb-4"><span class="gradient-text">Thank You</span></h2>
+        <p class="text-gray-400 mb-8 max-w-xl mx-auto">
+          Full reproduction of Nama & Sharmila Banu (2026) — AGSS validated across 6 models
+          and 2 datasets, with gradient boosting setting a new best result.
+        </p>
+        <div class="flex justify-center gap-4 mb-8 flex-wrap">
+          {[
+            {label:'Paper reproduced',val:'✓',     c:'text-accent-400'},
+            {label:'Best F1 (CC)',    val:'0.8734', c:'text-accent-400'},
+            {label:'vs Paper',        val:'+4.8%',  c:'text-accent-400'},
+            {label:'Experiments',     val:'12+',    c:'text-primary-400'},
+          ].map(item => (
+            <div class="glass rounded-xl px-6 py-4 text-center">
+              <p class={`text-3xl font-extrabold font-mono ${item.c}`}>{item.val}</p>
+              <p class="text-xs text-gray-500 mt-1">{item.label}</p>
+            </div>
+          ))}
+        </div>
+        <div class="flex justify-center gap-4">
+          <a href="/" class="px-6 py-3 rounded-xl text-white font-semibold transition-all hover:-translate-y-0.5"
+             style="background:#4f46e5">View Full Results →</a>
+          <a href="https://github.com/abdKelanii/agss-fraud-detection" target="_blank"
+             class="px-6 py-3 rounded-xl glass text-gray-300 hover:text-white font-semibold transition-all">
+            GitHub →
+          </a>
+        </div>
+      </div>
+    </section>
+
+  </div><!-- /slides-wrap -->
+
+  <!-- Bottom navigation -->
+  <div class="flex items-center justify-center gap-5 py-4 border-t border-white/5 flex-shrink-0">
+    <button id="btn-prev"
+            class="w-9 h-9 glass rounded-full flex items-center justify-center text-gray-400 hover:text-white hover:bg-white/10 transition-all">
+      ←
+    </button>
+    <div id="dots" class="flex gap-1.5 items-center"></div>
+    <button id="btn-next"
+            class="w-9 h-9 glass rounded-full flex items-center justify-center text-gray-400 hover:text-white hover:bg-white/10 transition-all">
+      →
+    </button>
+  </div>
+
+  <!-- Keyboard hint -->
+  <p id="kbd-hint" class="absolute bottom-16 left-1/2 -translate-x-1/2 text-xs text-gray-600 transition-opacity duration-1000 pointer-events-none">
+    ← → arrow keys · Space to advance
+  </p>
+
+</div><!-- /deck -->
+
+</Layout>
+
+<style>
+  .slide-label { font-size:.65rem; font-weight:700; text-transform:uppercase; letter-spacing:.1em; margin-bottom:.5rem; }
+  .slide-h2 { font-size:2.25rem; font-weight:800; color:white; margin-bottom:1.5rem; line-height:1.2; }
+
+  /* ── Deck enter: scales up + fades in from a slight lift ── */
+  @keyframes deckIn {
+    from { opacity:0; transform:scale(0.95) translateY(20px); }
+    to   { opacity:1; transform:scale(1)    translateY(0);    }
+  }
+  #deck { animation: deckIn .6s cubic-bezier(.16,1,.3,1) both; }
+
+  /* ── Slide base ── */
+  .slide {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 3.5rem 0 1rem;
+    opacity: 0;
+    transform: translateX(0) scale(1);
+    pointer-events: none;
+    will-change: transform, opacity;
+  }
+
+  /* Final resting state */
+  .slide.active {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+    pointer-events: all;
+  }
+
+  /* ── Progress bar glow pulse on slide change ── */
+  @keyframes barPulse {
+    0%   { box-shadow: 0 0 0   rgba(52,211,153,0);   }
+    40%  { box-shadow: 0 0 12px rgba(52,211,153,0.7); }
+    100% { box-shadow: 0 0 0   rgba(52,211,153,0);   }
+  }
+  #progress.pulse { animation: barPulse .55s ease forwards; }
+
+  /* ── Nav button press effect ── */
+  #btn-prev:active, #btn-next:active { transform: scale(0.88); }
+  #btn-prev, #btn-next { transition: transform .12s ease, opacity .2s ease, background .2s ease; }
+</style>
+
+<script>
+  const slides    = Array.from(document.querySelectorAll<HTMLElement>('.slide'));
+  const total     = slides.length;
+  let   cur       = 0;
+  let   animating = false;
+
+  const progressEl = document.getElementById('progress')!;
+  const counterEl  = document.getElementById('counter')!;
+  const dotsEl     = document.getElementById('dots')!;
+  const btnPrev    = document.getElementById('btn-prev') as HTMLButtonElement;
+  const btnNext    = document.getElementById('btn-next') as HTMLButtonElement;
+  const deck       = document.getElementById('deck')!;
+
+  // ── Build dot indicators ──────────────────────────────────────────────────
+  slides.forEach((_, i) => {
+    const d = document.createElement('button');
+    d.addEventListener('click', () => goTo(i));
+    dotsEl.appendChild(d);
+  });
+
+  // ── Update progress / counter / dots ─────────────────────────────────────
+  function updateUI() {
+    progressEl.style.width = `${((cur + 1) / total) * 100}%`;
+    // Progress bar glow pulse
+    progressEl.classList.remove('pulse');
+    void progressEl.offsetWidth;
+    progressEl.classList.add('pulse');
+
+    counterEl.textContent = `${cur + 1} / ${total}`;
+    btnPrev.style.opacity = cur === 0       ? '.3' : '1';
+    btnNext.style.opacity = cur === total-1 ? '.3' : '1';
+
+    dotsEl.querySelectorAll('button').forEach((d, i) => {
+      (d as HTMLElement).style.cssText = i === cur
+        ? 'width:1rem;height:.375rem;border-radius:9999px;background:#34d399;transition:all .35s cubic-bezier(.16,1,.3,1)'
+        : 'width:.375rem;height:.375rem;border-radius:9999px;background:rgba(255,255,255,.18);transition:all .35s cubic-bezier(.16,1,.3,1)';
+    });
+  }
+
+  // ── Core transition: directional slide ───────────────────────────────────
+  function goTo(n: number) {
+    if (n === cur || n < 0 || n >= total || animating) return;
+    animating = true;
+
+    const dir    = n > cur ? 1 : -1;
+    const prevEl = slides[cur];
+    const nextEl = slides[n];
+
+    const enterFrom = dir > 0 ? 'translateX(72px) scale(.97)' : 'translateX(-72px) scale(.97)';
+    const exitTo    = dir > 0 ? 'translateX(-56px) scale(.97)' : 'translateX(56px) scale(.97)';
+
+    // 1 — Snap next slide to its off-screen start (no transition)
+    nextEl.style.cssText = `opacity:0; transform:${enterFrom}; transition:none; pointer-events:none;`;
+    void nextEl.offsetWidth; // force paint
+
+    // 2 — Kick off both transitions on the next frame
+    requestAnimationFrame(() => {
+      // Prev exits
+      prevEl.style.cssText = `
+        opacity:0;
+        transform:${exitTo};
+        transition: opacity .28s ease, transform .28s cubic-bezier(.4,0,1,1);
+        pointer-events:none;
+      `;
+
+      // Next enters
+      nextEl.style.cssText = `
+        opacity:1;
+        transform:translateX(0) scale(1);
+        transition: opacity .5s cubic-bezier(.16,1,.3,1), transform .5s cubic-bezier(.16,1,.3,1);
+        pointer-events:all;
+      `;
+    });
+
+    cur = n;
+    updateUI();
+
+    // 3 — Clean up after animation: hand off to CSS class
+    setTimeout(() => {
+      prevEl.classList.remove('active');
+      prevEl.style.cssText = '';        // clear inline → CSS opacity:0 (hidden)
+
+      nextEl.classList.add('active');
+      nextEl.style.cssText = '';        // clear inline → CSS opacity:1 (active)
+
+      animating = false;
+    }, 540);
+  }
+
+  // ── Exit button: animate deck out then navigate ───────────────────────────
+  document.getElementById('exit-btn')?.addEventListener('click', e => {
+    e.preventDefault();
+    const href = (e.currentTarget as HTMLAnchorElement).href;
+    deck.style.transition = 'opacity .35s ease, transform .35s cubic-bezier(.4,0,1,1)';
+    deck.style.opacity    = '0';
+    deck.style.transform  = 'scale(0.94) translateY(-18px)';
+    setTimeout(() => { window.location.href = href; }, 370);
+  });
+
+  // ── Keyboard navigation ───────────────────────────────────────────────────
+  document.addEventListener('keydown', e => {
+    if (['ArrowRight', ' ', 'Enter'].includes(e.key)) { e.preventDefault(); goTo(cur + 1); }
+    if (e.key === 'ArrowLeft')                         { e.preventDefault(); goTo(cur - 1); }
+    if (e.key === 'Escape')                            {
+      document.getElementById('exit-btn')?.click();
+    }
+  });
+
+  // ── Touch swipe ──────────────────────────────────────────────────────────
+  let tx = 0;
+  const wrap = document.getElementById('slides-wrap')!;
+  wrap.addEventListener('touchstart', e => { tx = e.touches[0].clientX; }, { passive:true });
+  wrap.addEventListener('touchend',   e => {
+    const dx = tx - e.changedTouches[0].clientX;
+    if (Math.abs(dx) > 48) dx > 0 ? goTo(cur + 1) : goTo(cur - 1);
+  });
+
+  // ── Fade keyboard hint ────────────────────────────────────────────────────
+  setTimeout(() => {
+    const h = document.getElementById('kbd-hint');
+    if (h) h.style.opacity = '0';
+  }, 3500);
+
+  updateUI();
+</script>

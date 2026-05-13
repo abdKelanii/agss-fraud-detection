@@ -1,0 +1,25 @@
+---
+export interface Props {
+  label: string;
+  value: string;
+  sub?: string;
+  color?: 'green' | 'indigo' | 'amber' | 'rose';
+  delay?: number;
+}
+const { label, value, sub, color = 'indigo', delay = 0 } = Astro.props;
+const colors = {
+  green:  'from-accent-500/20 to-accent-600/5  border-accent-500/30  text-accent-400',
+  indigo: 'from-primary-500/20 to-primary-600/5 border-primary-500/30 text-primary-400',
+  amber:  'from-amber-500/20  to-amber-600/5   border-amber-500/30  text-amber-400',
+  rose:   'from-rose-500/20   to-rose-600/5    border-rose-500/30   text-rose-400',
+};
+---
+<div
+  data-animate
+  style={`animation-delay:${delay}ms`}
+  class={`glass glass-hover rounded-2xl p-6 bg-gradient-to-br ${colors[color]}`}
+>
+  <p class="text-xs font-medium text-gray-400 uppercase tracking-wider mb-2">{label}</p>
+  <p class={`text-4xl font-bold ${colors[color].split(' ').pop()}`}>{value}</p>
+  {sub && <p class="text-sm text-gray-500 mt-1">{sub}</p>}
+</div>

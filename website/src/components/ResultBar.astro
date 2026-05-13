@@ -1,0 +1,50 @@
+---
+export interface Props {
+  label: string;
+  value: number;
+  max?: number;
+  target?: number;
+  color?: string;
+  delay?: number;
+}
+const { label, value, max = 1, target, color = '#6366f1', delay = 0 } = Astro.props;
+const pct = Math.round((value / max) * 100);
+const targetPct = target ? Math.round((target / max) * 100) : null;
+---
+<div data-animate style={`animation-delay:${delay}ms`} class="mb-4">
+  <div class="flex justify-between items-center mb-1.5">
+    <span class="text-sm text-gray-300 font-medium">{label}</span>
+    <span class="text-sm font-mono font-bold" style={`color:${color}`}>{value.toFixed(4)}</span>
+  </div>
+  <div class="relative h-3 bg-white/5 rounded-full overflow-hidden">
+    <div
+      class="h-full rounded-full transition-all duration-1000 ease-out bar-anim"
+      style={`width:0%; background:${color}; --final-width:${pct}%`}
+    ></div>
+    {targetPct && (
+      <div
+        class="absolute top-0 bottom-0 w-0.5 bg-white/40"
+        style={`left:${targetPct}%`}
+        title={`Paper target: ${target}`}
+      ></div>
+    )}
+  </div>
+  {target && (
+    <p class="text-xs text-gray-500 mt-0.5">Paper target: {target.toFixed(4)}</p>
+  )}
+</div>
+
+<script>
+  document.querySelectorAll('.bar-anim').forEach(bar => {
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          const el = entry.target as HTMLElement;
+          setTimeout(() => { el.style.width = el.style.getPropertyValue('--final-width'); }, 200);
+          observer.unobserve(el);
+        }
+      });
+    });
+    observer.observe(bar);
+  });
+</script>

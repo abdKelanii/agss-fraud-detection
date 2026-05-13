@@ -1,0 +1,151 @@
+---
+import Layout from '../layouts/Layout.astro';
+
+const ccRows = [
+  { model:'LightGBM+AGSS', f1:0.8734, prec:0.9434, rec:0.8130, roc:0.9808, thresh:0.20, color:'#34d399' },
+  { model:'XGBoost+AGSS',  f1:0.8656, prec:0.9447, rec:0.7988, roc:0.9814, thresh:0.50, color:'#10b981' },
+  { model:'Paper LSTM+AGSS',f1:0.8333,prec:null,    rec:null,   roc:null,   thresh:null, color:'#6b7280' },
+];
+const deRows = [
+  { model:'XGBoost+AGSS',   f1:0.8386, prec:0.7329, rec:0.9800, roc:0.7300, thresh:0.90, color:'#10b981' },
+  { model:'LightGBM+AGSS',  f1:0.8343, prec:0.7233, rec:0.9857, roc:0.7176, thresh:0.99, color:'#34d399' },
+  { model:'Paper RNN+AGSS', f1:0.8489, prec:null,   rec:null,   roc:null,   thresh:null, color:'#6b7280' },
+];
+---
+
+<Layout title="Extension — Boosting Models">
+  <section class="max-w-6xl mx-auto px-6 py-20">
+
+    <div data-animate class="mb-12">
+      <p class="text-xs font-semibold text-accent-400 uppercase tracking-widest mb-2">Extension Beyond Paper</p>
+      <h1 class="text-4xl md:text-5xl font-extrabold text-white mb-4">LightGBM & XGBoost + AGSS</h1>
+      <p class="text-gray-400 max-w-2xl">
+        The original paper evaluates only deep learning models. We extend AGSS to gradient boosting,
+        demonstrating that the sampling algorithm transfers to classical ML —
+        achieving <span class="text-accent-400 font-bold">+4.8%</span> over the paper's best on creditcard.
+      </p>
+    </div>
+
+    <!-- Winner callout -->
+    <div data-animate class="glass rounded-3xl p-8 md:p-10 mb-10 border-accent-500/30
+                              bg-gradient-to-br from-accent-500/10 to-emerald-600/5">
+      <div class="flex flex-col md:flex-row items-center gap-8">
+        <div class="flex-1">
+          <p class="text-xs text-accent-400 font-semibold uppercase tracking-widest mb-2">Project Best Result</p>
+          <h2 class="text-3xl font-extrabold text-white mb-2">LightGBM + AGSS</h2>
+          <p class="text-gray-400 text-sm mb-5">Credit Card Dataset · 5-fold CV · threshold=0.20</p>
+          <div class="flex flex-wrap gap-5">
+            {[['F1','0.8734','text-accent-400'],['Precision','0.9434','text-primary-400'],
+              ['Recall','0.8130','text-purple-400'],['ROC-AUC','0.9808','text-amber-400'],
+              ['Train time','<15 min','text-rose-400']].map(([l,v,c]) => (
+              <div>
+                <p class={`text-2xl font-bold font-mono ${c}`}>{v}</p>
+                <p class="text-xs text-gray-500 mt-0.5">{l}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+        <div class="flex-shrink-0 text-center">
+          <div class="w-32 h-32 rounded-full border-4 border-accent-500/60
+                      flex flex-col items-center justify-center
+                      shadow-[0_0_40px_rgba(52,211,153,0.25)]">
+            <p class="text-3xl font-extrabold text-accent-400">+4.8%</p>
+            <p class="text-xs text-gray-400 mt-1">vs paper</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CC table -->
+    <div data-animate class="glass rounded-2xl overflow-hidden mb-6">
+      <div class="px-6 py-4 border-b border-white/5">
+        <h2 class="font-bold text-white">Credit Card — F1 (fraud class)</h2>
+      </div>
+      <table class="w-full text-sm">
+        <thead>
+          <tr class="text-xs text-gray-500 uppercase border-b border-white/5">
+            <th class="px-6 py-3 text-left">Model</th>
+            <th class="px-6 py-3 text-right">F1</th>
+            <th class="px-6 py-3 text-right">Precision</th>
+            <th class="px-6 py-3 text-right">Recall</th>
+            <th class="px-6 py-3 text-right">ROC-AUC</th>
+            <th class="px-6 py-3 text-right">Threshold</th>
+          </tr>
+        </thead>
+        <tbody>
+          {ccRows.map(r => (
+            <tr class="border-b border-white/5 hover:bg-white/3 transition-colors">
+              <td class="px-6 py-3">
+                <div class="flex items-center gap-2">
+                  <span class="w-2 h-2 rounded-full" style={`background:${r.color}`}></span>
+                  <span class="font-semibold text-gray-200">{r.model}</span>
+                </div>
+              </td>
+              <td class="px-6 py-3 text-right font-mono font-bold" style={`color:${r.color}`}>{r.f1.toFixed(4)}</td>
+              <td class="px-6 py-3 text-right font-mono text-gray-400">{r.prec ? r.prec.toFixed(4) : '—'}</td>
+              <td class="px-6 py-3 text-right font-mono text-gray-400">{r.rec  ? r.rec.toFixed(4)  : '—'}</td>
+              <td class="px-6 py-3 text-right font-mono text-gray-400">{r.roc  ? r.roc.toFixed(4)  : '—'}</td>
+              <td class="px-6 py-3 text-right font-mono text-gray-400">{r.thresh !== null ? r.thresh : '—'}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+
+    <!-- German table -->
+    <div data-animate class="glass rounded-2xl overflow-hidden mb-10">
+      <div class="px-6 py-4 border-b border-white/5">
+        <h2 class="font-bold text-white">German Credit — F1 (good class)</h2>
+      </div>
+      <table class="w-full text-sm">
+        <thead>
+          <tr class="text-xs text-gray-500 uppercase border-b border-white/5">
+            <th class="px-6 py-3 text-left">Model</th>
+            <th class="px-6 py-3 text-right">F1</th>
+            <th class="px-6 py-3 text-right">Precision</th>
+            <th class="px-6 py-3 text-right">Recall</th>
+            <th class="px-6 py-3 text-right">ROC-AUC</th>
+            <th class="px-6 py-3 text-right">Threshold</th>
+          </tr>
+        </thead>
+        <tbody>
+          {deRows.map(r => (
+            <tr class="border-b border-white/5 hover:bg-white/3 transition-colors">
+              <td class="px-6 py-3">
+                <div class="flex items-center gap-2">
+                  <span class="w-2 h-2 rounded-full" style={`background:${r.color}`}></span>
+                  <span class="font-semibold text-gray-200">{r.model}</span>
+                </div>
+              </td>
+              <td class="px-6 py-3 text-right font-mono font-bold" style={`color:${r.color}`}>{r.f1.toFixed(4)}</td>
+              <td class="px-6 py-3 text-right font-mono text-gray-400">{r.prec ? r.prec.toFixed(4) : '—'}</td>
+              <td class="px-6 py-3 text-right font-mono text-gray-400">{r.rec  ? r.rec.toFixed(4)  : '—'}</td>
+              <td class="px-6 py-3 text-right font-mono text-gray-400">{r.roc  ? r.roc.toFixed(4)  : '—'}</td>
+              <td class="px-6 py-3 text-right font-mono text-gray-400">{r.thresh !== null ? r.thresh : '—'}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Why boosting wins -->
+    <div data-animate class="glass rounded-2xl p-8">
+      <h2 class="text-lg font-bold text-white mb-5">Why Boosting Outperforms Deep Learning Here</h2>
+      <div class="grid md:grid-cols-2 gap-4">
+        {[
+          { icon:'📊', title:'Tabular data advantage', desc:'Tree models capture non-linear feature interactions without requiring large datasets or careful tuning.' },
+          { icon:'⚡', title:'Speed', desc:'LightGBM trains in seconds vs 3.5 hrs for LSTM+AGSS. Enables rapid iteration and retraining.' },
+          { icon:'🎯', title:'Threshold tuning', desc:'Both models benefit from the same post-hoc threshold sweep — threshold=0.20 for LightGBM maximises fraud recall without sacrificing precision.' },
+          { icon:'🔒', title:'AGSS synergy', desc:'AGSS\'s cluster-aware sampling provides cleaner synthetic fraud patterns that gradient boosting can exploit more effectively than LSTM.' },
+        ].map(item => (
+          <div class="glass rounded-xl p-5">
+            <p class="text-2xl mb-2">{item.icon}</p>
+            <p class="font-semibold text-white mb-1">{item.title}</p>
+            <p class="text-sm text-gray-400">{item.desc}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+
+  </section>
+</Layout>
