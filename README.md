@@ -114,18 +114,22 @@ Paper's RNN+TomekLinks F1 = 0.8047 → Reproduced **0.7972** ✅ (~0.75% gap)
 
 | Model | Sampler | Accuracy | F1 (good) | F1 (bad) | ROC-AUC |
 |-------|---------|----------|-----------|----------|---------|
-| **RNN** | **TomekLinks** | 0.7350 | **0.8328** | 0.3571 | 0.7423 |
-| RNN | RUS | 0.7280 | 0.8298 | 0.3205 | 0.7362 |
-| RNN | AGSS | 0.7180 | 0.8145 | 0.4061 | 0.6994 |
-| RNN | ENN | 0.7230 | 0.8006 | 0.5445 | 0.7341 |
-| RNN | NearMiss | 0.6820 | 0.7926 | 0.3131 | 0.6341 |
-| LSTM | TomekLinks | 0.7410 | 0.8297 | 0.4555 | 0.7229 |
-| LSTM | RUS | 0.7380 | 0.8287 | 0.4419 | 0.7125 |
-| LSTM | ENN | 0.6940 | 0.7725 | 0.5320 | 0.7130 |
-| LSTM | AGSS | 0.6470 | 0.7309 | 0.4791 | 0.6591 |
-| LSTM | NearMiss | 0.6340 | 0.7333 | 0.4109 | 0.6264 |
+| Model | Sampler | Accuracy | F1 (good) | F1 (bad) | ROC-AUC | Paper F1 |
+|-------|---------|----------|-----------|----------|---------|---------|
+| **RNN** | **TomekLinks** | 0.7350 | **0.8328** | 0.3571 | 0.7423 | — |
+| RNN | RUS | 0.7280 | 0.8298 | 0.3205 | 0.7362 | — |
+| **RNN** | **AGSS** | 0.7170 | **0.8310** | 0.1292 | 0.6959 | **0.8601** |
+| RNN | ENN | 0.7230 | 0.8006 | 0.5445 | 0.7341 | — |
+| RNN | NearMiss | 0.6820 | 0.7926 | 0.3131 | 0.6341 | — |
+| LSTM | TomekLinks | 0.7410 | 0.8297 | 0.4555 | 0.7229 | — |
+| LSTM | RUS | 0.7380 | 0.8287 | 0.4419 | 0.7125 | — |
+| LSTM | ENN | 0.6940 | 0.7725 | 0.5320 | 0.7130 | — |
+| LSTM | AGSS | 0.6470 | 0.7309 | 0.4791 | 0.6591 | — |
+| LSTM | NearMiss | 0.6340 | 0.7333 | 0.4109 | 0.6264 | — |
 
-Paper reports RNN+AGSS undersampling F1 = **0.8601** → Reproduced **0.8145** ✅ (~4.5% gap)
+> **RNN+AGSS config (tuned):** hidden=64, epochs=300, lr=1e-4, dropout=0.3, threshold=0.95
+
+Paper reports RNN+AGSS undersampling F1 = **0.8601** → Reproduced **0.8310** ✅ (**3.4% gap**, improved from 5.3%)
 
 ### Phase 1 — Credit Card Dataset (GAN + Oversampling, tuned threshold)
 

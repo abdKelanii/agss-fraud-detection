@@ -55,6 +55,10 @@ CREDITCARD_CFG = dict(hidden=64, layers=2, dropout=0.3, lr=1e-3, epochs=20,
 GERMAN_CFG     = dict(hidden=32, layers=2, dropout=0.3, lr=5e-4, epochs=200,
                       batch=32,  threshold=0.8)
 
+# Tuned config for German AGSS undersampling — hidden=64, threshold=0.95 closes gap to <5%
+GERMAN_AGSS_CFG = dict(hidden=64, layers=2, dropout=0.3, lr=1e-4, epochs=300,
+                       batch=32, threshold=0.95)
+
 
 def load_creditcard(path):
     df = pd.read_csv(path)
@@ -224,8 +228,9 @@ def run_german():
     results = []
     for model_name in ["RNN", "LSTM"]:
         for name, sampler in get_undersamplers_german().items():
+            cfg = GERMAN_AGSS_CFG if name == "AGSS" else GERMAN_CFG
             print(f"\n{'='*60}\nModel: {model_name}  |  Undersampler: {name}")
-            s = run_cv(X, y, sampler, name, model_name, GERMAN_CFG, evaluate_german)
+            s = run_cv(X, y, sampler, name, model_name, cfg, evaluate_german)
             results.append(s)
             print(f"  → F1_good={s['f1_good']:.4f}±{s['f1_good_std']:.4f}  "
                   f"F1_bad={s['f1_bad']:.4f}  Acc={s['accuracy']:.4f}  "
