@@ -11,8 +11,20 @@ import Layout from '../layouts/Layout.astro';
        style="width:6.67%; background: linear-gradient(90deg,#6366f1,#34d399)"></div>
 
   <!-- Top bar -->
-  <div class="absolute top-4 right-5 flex items-center gap-4 z-10">
+  <div class="absolute top-4 right-5 flex items-center gap-3 z-10">
     <span id="counter" class="text-xs font-mono text-gray-500">1 / 15</span>
+    <button id="fs-btn" title="Toggle fullscreen"
+            class="text-gray-400 hover:text-white transition-colors p-1.5 rounded-full"
+            style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08)">
+      <svg id="fs-expand" class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"/>
+      </svg>
+      <svg id="fs-compress" class="w-3.5 h-3.5 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M9 9V4M9 9H4M9 9L4 4m11 5h-4m4 0V4m0 5l-5-5M9 15v4m0-4H4m5 4l-5 5m11-5h4m-4 0v4m0-4l5 5"/>
+      </svg>
+    </button>
     <a id="exit-btn" href="/" class="text-xs text-gray-400 hover:text-white transition-colors px-3 py-1.5 rounded-full"
        style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08)">
       ✕ Exit
@@ -754,11 +766,30 @@ import Layout from '../layouts/Layout.astro';
     setTimeout(() => { window.location.href = href; }, 370);
   });
 
+  // ── Fullscreen ────────────────────────────────────────────────────────────
+  const fsBtn      = document.getElementById('fs-btn')!;
+  const fsExpand   = document.getElementById('fs-expand')!;
+  const fsCompress = document.getElementById('fs-compress')!;
+
+  fsBtn.addEventListener('click', () => {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen();
+    } else {
+      document.exitFullscreen();
+    }
+  });
+
+  document.addEventListener('fullscreenchange', () => {
+    const isFs = !!document.fullscreenElement;
+    fsExpand.classList.toggle('hidden', isFs);
+    fsCompress.classList.toggle('hidden', !isFs);
+  });
+
   // ── Keyboard navigation ───────────────────────────────────────────────────
   document.addEventListener('keydown', e => {
     if (['ArrowRight', ' ', 'Enter'].includes(e.key)) { e.preventDefault(); goTo(cur + 1); }
     if (e.key === 'ArrowLeft')                         { e.preventDefault(); goTo(cur - 1); }
-    if (e.key === 'Escape')                            {
+    if (e.key === 'Escape' && !document.fullscreenElement) {
       document.getElementById('exit-btn')?.click();
     }
   });

@@ -1,119 +1,198 @@
 ---
 import Layout from '../layouts/Layout.astro';
-import ResultBar from '../components/ResultBar.astro';
 
-const overRows = [
-  { model:'LightGBM', f1:0.8734, prec:0.9434, rec:0.8130, roc:0.9808, color:'#34d399', beat:true  },
-  { model:'XGBoost',  f1:0.8656, prec:0.9447, rec:0.7988, roc:0.9814, color:'#10b981', beat:true  },
-  { model:'LSTM',     f1:0.8236, prec:0.8706, rec:0.7866, roc:0.9728, color:'#818cf8', beat:false },
-  { model:'RNN',      f1:0.8077, prec:0.8372, rec:0.7967, roc:0.9780, color:'#a78bfa', beat:false },
-  { model:'GAN',      f1:0.7497, prec:0.8367, rec:0.6606, roc:0.9574, color:'#f59e0b', beat:false },
-  { model:'Transformer',f1:0.3922,prec:0.3367,rec:0.4695, roc:0.9208, color:'#c084fc', beat:false },
-];
-const paperCC = 0.8333;
+const paperCC  = 0.8333;
+const paperUnder = 0.8636; // LSTM+AGSS under paper target
+
+const rows = [
+  // ── Oversampling ──────────────────────────────────────────────────────────
+  { model:'LightGBM', sampler:'AGSS', type:'over',  f1:0.8734, prec:0.9434, rec:0.8130, roc:0.9808, thresh:0.20,  color:'#34d399' },
+  { model:'XGBoost',  sampler:'AGSS', type:'over',  f1:0.8656, prec:0.9447, rec:0.7988, roc:0.9814, thresh:0.50,  color:'#10b981' },
+  { model:'LSTM',     sampler:'AGSS', type:'over',  f1:0.8236, prec:0.8706, rec:0.7866, roc:0.9728, thresh:null,  color:'#818cf8' },
+  { model:'RNN',      sampler:'AGSS', type:'over',  f1:0.8077, prec:0.8372, rec:0.7967, roc:0.9780, thresh:null,  color:'#a78bfa' },
+  { model:'GAN',      sampler:'AGSS', type:'over',  f1:0.7497, prec:0.8367, rec:0.6606, roc:0.9574, thresh:null,  color:'#f59e0b' },
+  { model:'Transformer', sampler:'AGSS', type:'over', f1:0.3922, prec:0.3367, rec:0.4695, roc:0.9208, thresh:null, color:'#c084fc' },
+  // ── Undersampling ─────────────────────────────────────────────────────────
+  { model:'LSTM',     sampler:'AGSS', type:'under', f1:0.8238, prec:null,   rec:null,   roc:null,   thresh:0.985, color:'#818cf8' },
+  { model:'RNN',      sampler:'AGSS', type:'under', f1:0.8218, prec:null,   rec:null,   roc:null,   thresh:0.90,  color:'#a78bfa' },
+].sort((a, b) => b.f1 - a.f1);
 ---
 
 <Layout title="Credit Card Results">
   <section class="max-w-6xl mx-auto px-6 py-20">
 
-    <div data-animate class="mb-12">
+    <!-- Header -->
+    <div data-animate class="mb-10">
       <p class="text-xs font-semibold text-primary-400 uppercase tracking-widest mb-2">Phase 1</p>
       <h1 class="text-4xl md:text-5xl font-extrabold text-white mb-4">Credit Card Dataset</h1>
       <p class="text-gray-400 max-w-2xl">
         284,807 transactions · 492 fraud (0.17%) · 30 PCA features.
-        Evaluated with 5-fold stratified CV. Metric: <strong class="text-gray-200">F1-score on fraud class</strong>.
-        Paper target: <span class="text-primary-400 font-mono font-bold">{paperCC}</span> (LSTM+AGSS).
+        5-fold stratified CV · Metric: <strong class="text-gray-200">F1 on fraud class</strong>.
       </p>
     </div>
 
-    <!-- F1 comparison bars -->
-    <div data-animate class="glass rounded-2xl p-8 mb-8">
-      <h2 class="text-lg font-bold text-white mb-6">F1-Score Comparison (AGSS oversampling)</h2>
-      {overRows.map((r, i) => (
-        <div class="mb-5">
-          <div class="flex justify-between items-center mb-1.5">
-            <div class="flex items-center gap-2">
-              <span class="w-2.5 h-2.5 rounded-full" style={`background:${r.color}`}></span>
-              <span class="text-sm font-semibold text-gray-200">{r.model}</span>
-              {r.beat && <span class="text-xs px-2 py-0.5 rounded-full bg-accent-500/20 text-accent-400 font-bold">beats paper</span>}
-            </div>
-            <span class="font-mono font-bold text-sm" style={`color:${r.color}`}>{r.f1.toFixed(4)}</span>
-          </div>
-          <div class="relative h-3 bg-white/5 rounded-full overflow-hidden">
-            <div class="h-full rounded-full bar-item"
-                 style={`width:0%; background:${r.color}; transition: width 1s ease ${i*120}ms`}
-                 data-width={`${(r.f1/1)*100}%`}></div>
-            <div class="absolute top-0 bottom-0 w-px bg-white/30" style={`left:${paperCC*100}%`}></div>
-          </div>
-        </div>
-      ))}
-      <p class="text-xs text-gray-500 mt-4">Vertical line = paper LSTM+AGSS target ({paperCC})</p>
+    <!-- Paper target pills -->
+    <div data-animate class="flex flex-wrap gap-3 mb-10">
+      <div class="glass rounded-full px-4 py-1.5 text-xs flex items-center gap-2">
+        <span class="w-2 h-2 rounded-full bg-primary-400"></span>
+        <span class="text-gray-400">Paper over target (LSTM+AGSS):</span>
+        <span class="font-mono font-bold text-primary-400">{paperCC}</span>
+      </div>
+      <div class="glass rounded-full px-4 py-1.5 text-xs flex items-center gap-2">
+        <span class="w-2 h-2 rounded-full bg-indigo-400"></span>
+        <span class="text-gray-400">Paper under target (LSTM+AGSS):</span>
+        <span class="font-mono font-bold text-indigo-400">{paperUnder}</span>
+      </div>
     </div>
 
-    <!-- Detailed table -->
-    <div data-animate class="glass rounded-2xl overflow-hidden mb-8">
-      <div class="p-6 border-b border-white/5">
-        <h2 class="text-lg font-bold text-white">Detailed Metrics</h2>
+    <!-- ── Combined bar chart ─────────────────────────────────────────────── -->
+    <div data-animate class="glass rounded-2xl p-8 mb-8">
+      <div class="flex items-center justify-between mb-6">
+        <h2 class="text-lg font-bold text-white">F1-Score — All Models, All Sampling Methods</h2>
+        <div class="flex items-center gap-4">
+          <div class="flex gap-3">
+            <span class="flex items-center gap-1.5 text-xs text-gray-400">
+              <span class="inline-block w-8 h-2 rounded" style="background:#34d399"></span>Oversampling
+            </span>
+            <span class="flex items-center gap-1.5 text-xs text-gray-400">
+              <span class="inline-block w-8 h-2 rounded" style="background:#6366f1;opacity:.7"></span>Undersampling
+            </span>
+          </div>
+          <button class="fullscreen-btn p-1.5 rounded-lg bg-white/5 hover:bg-white/10 transition-colors text-gray-400 hover:text-white" title="Toggle fullscreen">
+            <svg class="expand-icon w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"/></svg>
+            <svg class="compress-icon w-4 h-4 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 9V4M9 9H4M9 9L4 4m11 5h-4m4 0V4m0 5l-5-5M9 15v4m0-4H4m5 4l-5 5m11-5h4m-4 0v4m0-4l5 5"/></svg>
+          </button>
+        </div>
+      </div>
+
+      {rows.map((r, i) => {
+        const isOver  = r.type === 'over';
+        const barBg   = isOver
+          ? `${r.color}`
+          : `${r.color}99`;                      // muted for under
+        const barBorder = isOver ? 'none' : `2px dashed ${r.color}`;
+        const vsRef = isOver ? paperCC : paperUnder;
+        const delta = ((r.f1 - vsRef) * 100).toFixed(1);
+        const positive = r.f1 >= vsRef;
+        return (
+          <div class="mb-4">
+            <div class="flex justify-between items-center mb-1.5">
+              <div class="flex items-center gap-2 min-w-0">
+                <span class="w-2.5 h-2.5 rounded-full flex-shrink-0" style={`background:${r.color}`}></span>
+                <span class="text-sm font-semibold text-gray-200 truncate">{r.model}</span>
+                <span class={`text-[10px] font-bold px-1.5 py-0.5 rounded flex-shrink-0
+                  ${isOver ? 'bg-accent-500/20 text-accent-400' : 'bg-indigo-500/20 text-indigo-400'}`}>
+                  {isOver ? 'OVER' : 'UNDER'}
+                </span>
+                <span class="text-[10px] text-gray-500 flex-shrink-0">{r.sampler}</span>
+              </div>
+              <div class="flex items-center gap-3 flex-shrink-0 ml-3">
+                <span class="font-mono font-bold text-sm" style={`color:${r.color}`}>{r.f1.toFixed(4)}</span>
+                <span class={`text-[10px] font-bold px-2 py-0.5 rounded-full
+                  ${positive ? 'bg-accent-500/20 text-accent-400' : 'bg-rose-500/10 text-rose-400'}`}>
+                  {positive ? '+' : ''}{delta}%
+                </span>
+              </div>
+            </div>
+            <div class="relative h-3 bg-white/5 rounded-full overflow-hidden">
+              <div class="h-full rounded-full bar-item"
+                   style={`width:0%; background:${barBg}; border:${barBorder}; transition:width 1s ease ${i*80}ms`}
+                   data-width={`${r.f1 * 100}%`}></div>
+              {/* paper over line */}
+              <div class="absolute top-0 bottom-0 w-px bg-white/30" style={`left:${paperCC * 100}%`}></div>
+              {/* paper under line */}
+              <div class="absolute top-0 bottom-0 w-px bg-indigo-400/40" style={`left:${paperUnder * 100}%`}></div>
+            </div>
+          </div>
+        );
+      })}
+      <div class="flex gap-5 mt-3">
+        <p class="text-xs text-gray-500">White line = paper over target ({paperCC})</p>
+        <p class="text-xs text-indigo-400/60">Indigo line = paper under target ({paperUnder})</p>
+        <p class="text-xs text-gray-500">% delta vs corresponding paper target</p>
+      </div>
+    </div>
+
+    <!-- ── Combined table ────────────────────────────────────────────────── -->
+    <div data-animate class="glass rounded-2xl overflow-hidden">
+      <div class="px-6 py-4 border-b border-white/5 flex items-center justify-between">
+        <h2 class="font-bold text-white">Detailed Metrics — Oversampling & Undersampling</h2>
+        <div class="flex items-center gap-3">
+          <div class="flex gap-2 text-xs text-gray-500">
+            <span class="px-2 py-0.5 rounded bg-accent-500/15 text-accent-400">OVER</span>
+            <span class="px-2 py-0.5 rounded bg-indigo-500/15 text-indigo-400">UNDER</span>
+          </div>
+          <button class="fullscreen-btn p-1.5 rounded-lg bg-white/5 hover:bg-white/10 transition-colors text-gray-400 hover:text-white" title="Toggle fullscreen">
+            <svg class="expand-icon w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"/></svg>
+            <svg class="compress-icon w-4 h-4 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 9V4M9 9H4M9 9L4 4m11 5h-4m4 0V4m0 5l-5-5M9 15v4m0-4H4m5 4l-5 5m11-5h4m-4 0v4m0-4l5 5"/></svg>
+          </button>
+        </div>
       </div>
       <div class="overflow-x-auto">
         <table class="w-full text-sm">
           <thead>
             <tr class="text-xs text-gray-500 uppercase border-b border-white/5">
-              <th class="px-6 py-3 text-left">Model</th>
-              <th class="px-6 py-3 text-right">F1</th>
-              <th class="px-6 py-3 text-right">Precision</th>
-              <th class="px-6 py-3 text-right">Recall</th>
-              <th class="px-6 py-3 text-right">ROC-AUC</th>
-              <th class="px-6 py-3 text-right">vs Paper</th>
+              <th class="px-5 py-3 text-left">Model</th>
+              <th class="px-5 py-3 text-left">Type</th>
+              <th class="px-5 py-3 text-right">F1</th>
+              <th class="px-5 py-3 text-right">Precision</th>
+              <th class="px-5 py-3 text-right">Recall</th>
+              <th class="px-5 py-3 text-right">ROC-AUC</th>
+              <th class="px-5 py-3 text-right">Threshold</th>
+              <th class="px-5 py-3 text-right">vs Paper</th>
             </tr>
           </thead>
           <tbody>
-            {overRows.map((r, i) => (
-              <tr class={`border-b border-white/5 transition-colors hover:bg-white/3
-                          ${i % 2 === 0 ? 'bg-white/1' : ''}`}>
-                <td class="px-6 py-4">
-                  <div class="flex items-center gap-2">
-                    <span class="w-2 h-2 rounded-full" style={`background:${r.color}`}></span>
-                    <span class="font-semibold text-gray-200">{r.model}</span>
-                  </div>
-                </td>
-                <td class="px-6 py-4 text-right font-mono font-bold" style={`color:${r.color}`}>{r.f1.toFixed(4)}</td>
-                <td class="px-6 py-4 text-right font-mono text-gray-300">{r.prec.toFixed(4)}</td>
-                <td class="px-6 py-4 text-right font-mono text-gray-300">{r.rec.toFixed(4)}</td>
-                <td class="px-6 py-4 text-right font-mono text-gray-300">{r.roc.toFixed(4)}</td>
-                <td class="px-6 py-4 text-right">
-                  <span class={`text-xs font-bold px-2 py-1 rounded-full
-                    ${r.f1 >= paperCC ? 'bg-accent-500/20 text-accent-400' : 'bg-rose-500/10 text-rose-400'}`}>
-                    {r.f1 >= paperCC ? '+' : ''}{((r.f1 - paperCC) * 100).toFixed(1)}%
-                  </span>
-                </td>
-              </tr>
-            ))}
+            {rows.map((r, i) => {
+              const isOver = r.type === 'over';
+              const vsRef  = isOver ? paperCC : paperUnder;
+              const delta  = ((r.f1 - vsRef) * 100).toFixed(1);
+              const pos    = r.f1 >= vsRef;
+              return (
+                <tr class={`border-b border-white/5 hover:bg-white/3 transition-colors ${i%2===0?'bg-white/[0.01]':''}`}>
+                  <td class="px-5 py-3">
+                    <div class="flex items-center gap-2">
+                      <span class="w-2 h-2 rounded-full flex-shrink-0" style={`background:${r.color}`}></span>
+                      <span class="font-semibold text-gray-200">{r.model}</span>
+                      <span class="text-xs text-gray-500">{r.sampler}</span>
+                    </div>
+                  </td>
+                  <td class="px-5 py-3">
+                    <span class={`text-xs font-bold px-2 py-0.5 rounded
+                      ${isOver ? 'bg-accent-500/15 text-accent-400' : 'bg-indigo-500/15 text-indigo-400'}`}>
+                      {isOver ? 'Oversampling' : 'Undersampling'}
+                    </span>
+                  </td>
+                  <td class="px-5 py-3 text-right font-mono font-bold" style={`color:${r.color}`}>{r.f1.toFixed(4)}</td>
+                  <td class="px-5 py-3 text-right font-mono text-gray-400">{r.prec != null ? r.prec.toFixed(4) : '—'}</td>
+                  <td class="px-5 py-3 text-right font-mono text-gray-400">{r.rec  != null ? r.rec.toFixed(4)  : '—'}</td>
+                  <td class="px-5 py-3 text-right font-mono text-gray-400">{r.roc  != null ? r.roc.toFixed(4)  : '—'}</td>
+                  <td class="px-5 py-3 text-right font-mono text-gray-400">{r.thresh != null ? r.thresh : '—'}</td>
+                  <td class="px-5 py-3 text-right">
+                    <span class={`text-xs font-bold px-2 py-0.5 rounded-full
+                      ${pos ? 'bg-accent-500/20 text-accent-400' : 'bg-rose-500/10 text-rose-400'}`}>
+                      {pos ? '+' : ''}{delta}%
+                    </span>
+                  </td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>
     </div>
 
-    <!-- Undersampling summary -->
-    <div data-animate class="glass rounded-2xl p-8">
-      <h2 class="text-lg font-bold text-white mb-4">Undersampling Results</h2>
-      <div class="grid md:grid-cols-2 gap-4">
-        {[
-          { model:'LSTM+AGSS', f1:'0.8238', thresh:'0.985', note:'4.6% gap from paper (0.8636)' },
-          { model:'RNN+AGSS',  f1:'0.8218', thresh:'0.90',  note:'Beats paper RNN+TomekLinks (+2.1%)' },
-        ].map(r => (
-          <div class="glass rounded-xl p-5">
-            <p class="font-bold text-white mb-1">{r.model}</p>
-            <p class="text-3xl font-extrabold text-primary-400 font-mono">{r.f1}</p>
-            <p class="text-xs text-gray-500 mt-1">threshold = {r.thresh}</p>
-            <p class="text-xs text-gray-400 mt-2">{r.note}</p>
-          </div>
-        ))}
-      </div>
-    </div>
-
   </section>
 </Layout>
+
+<style>
+  .glass:fullscreen {
+    overflow: auto;
+    padding: 2rem;
+    background: #0f172a;
+    border-radius: 0;
+  }
+</style>
 
 <script>
   const observer = new IntersectionObserver(entries => {
@@ -128,4 +207,24 @@ const paperCC = 0.8333;
     });
   }, { threshold: 0.2 });
   document.querySelectorAll('[data-animate]').forEach(el => observer.observe(el));
+
+  document.querySelectorAll('.fullscreen-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const card = btn.closest('.glass') as HTMLElement;
+      if (!document.fullscreenElement) {
+        card.requestFullscreen();
+      } else {
+        document.exitFullscreen();
+      }
+    });
+  });
+
+  document.addEventListener('fullscreenchange', () => {
+    document.querySelectorAll('.fullscreen-btn').forEach(btn => {
+      const card = btn.closest('.glass');
+      const isThisCard = document.fullscreenElement === card;
+      (btn.querySelector('.expand-icon') as HTMLElement).classList.toggle('hidden', isThisCard);
+      (btn.querySelector('.compress-icon') as HTMLElement).classList.toggle('hidden', !isThisCard);
+    });
+  });
 </script>
