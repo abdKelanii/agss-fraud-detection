@@ -8,11 +8,11 @@ import Layout from '../layouts/Layout.astro';
 
   <!-- Progress bar -->
   <div id="progress" class="absolute top-0 left-0 h-[3px] z-10 transition-all duration-500"
-       style="width:6.25%; background: linear-gradient(90deg,#6366f1,#34d399)"></div>
+       style="width:6.67%; background: linear-gradient(90deg,#6366f1,#34d399)"></div>
 
   <!-- Top bar -->
   <div class="absolute top-4 right-5 flex items-center gap-3 z-10">
-    <span id="counter" class="text-xs font-mono text-gray-500">1 / 16</span>
+    <span id="counter" class="text-xs font-mono text-gray-500">1 / 15</span>
     <button id="fs-btn" title="Toggle fullscreen"
             class="text-gray-400 hover:text-white transition-colors p-1.5 rounded-full"
             style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08)">
@@ -513,61 +513,7 @@ import Layout from '../layouts/Layout.astro';
       </div>
     </section>
 
-    <!-- ───────── SLIDE 14: Extension ───────── -->
-    <section class="slide">
-      <div class="max-w-4xl mx-auto px-10 w-full">
-        <p class="slide-label text-accent-400">Extension Beyond Paper</p>
-        <h2 class="slide-h2">LightGBM & XGBoost + AGSS</h2>
-        <p class="text-gray-400 text-sm mb-7">The paper tests only deep learning. We apply AGSS to gradient boosting — and it wins.</p>
-        <div class="grid md:grid-cols-2 gap-6">
-          <div class="space-y-4">
-            <div class="glass rounded-2xl p-5 border-accent-500/30 bg-accent-500/5">
-              <div class="flex justify-between items-start mb-4">
-                <div>
-                  <p class="font-bold text-white">LightGBM + AGSS</p>
-                  <p class="text-xs text-gray-400">threshold = 0.20 · Credit Card</p>
-                </div>
-                <span class="text-xs bg-accent-500/20 text-accent-400 px-2 py-1 rounded-full font-bold">+4.8% vs paper</span>
-              </div>
-              <div class="grid grid-cols-2 gap-3">
-                {[['F1','0.8734','text-accent-400'],['ROC-AUC','0.9808','text-primary-400'],['Precision','0.9434','text-purple-400'],['Recall','0.8130','text-amber-400']].map(([l,v,c]) => (
-                  <div><p class={`text-xl font-bold font-mono ${c}`}>{v}</p><p class="text-xs text-gray-500">{l}</p></div>
-                ))}
-              </div>
-            </div>
-            <div class="glass rounded-xl p-4 flex justify-between items-center">
-              <div><p class="font-semibold text-white">XGBoost + AGSS</p><p class="text-xs text-gray-400">threshold = 0.50 · Credit Card</p></div>
-              <div class="text-right"><p class="font-mono font-bold text-emerald-400 text-lg">0.8656</p><p class="text-xs text-gray-500">+3.9% vs paper</p></div>
-            </div>
-            <div class="glass rounded-xl p-4 flex justify-between items-center border-accent-500/20 bg-accent-500/5">
-              <div><p class="font-semibold text-white">LightGBM + AGSS</p><p class="text-xs text-gray-400">threshold = 0.95 · German Credit (tuned)</p></div>
-              <div class="text-right"><p class="font-mono font-bold text-accent-400 text-lg">0.8483</p><p class="text-xs text-gray-500">−0.07% from paper</p></div>
-            </div>
-          </div>
-          <div class="glass rounded-2xl p-5">
-            <p class="text-sm font-bold text-gray-300 mb-4">Why It Works Better</p>
-            <div class="space-y-3">
-              {[
-                ['📊','Tabular advantage','Tree models capture non-linear interactions natively'],
-                ['⚡','Speed',            '<15 min vs 3.5 hrs for LSTM — enables rapid iteration'],
-                ['🎯','Threshold tuning', 'threshold=0.20 maximises F1 on this imbalanced dataset'],
-                ['🔒','AGSS synergy',     'Cluster-aware patterns that gradient boosting exploits directly'],
-              ].map(([icon,title,desc]) => (
-                <div class="flex gap-3">
-                  <span class="text-lg">{icon}</span>
-                  <div>
-                    <p class="text-sm font-semibold text-white">{title}</p>
-                    <p class="text-xs text-gray-400">{desc}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- ───────── SLIDE 15: Key Findings ───────── -->
+    <!-- ───────── SLIDE 14: Key Findings ───────── -->
     <section class="slide">
       <div class="max-w-4xl mx-auto px-10 w-full">
         <p class="slide-label text-amber-400">Findings</p>

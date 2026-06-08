@@ -6,3 +6,4 @@ Configs to run: 18
 
 [01/18] d_model=64  epochs=50  lr=0.0005
     fold 1/5  F1@0.5=0.4476  ROC=0.9481
+    fold 2/5  F1@0.5=0.4684  ROC=0.9592
