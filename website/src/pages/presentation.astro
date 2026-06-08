@@ -8,11 +8,11 @@ import Layout from '../layouts/Layout.astro';
 
   <!-- Progress bar -->
   <div id="progress" class="absolute top-0 left-0 h-[3px] z-10 transition-all duration-500"
-       style="width:5.88%; background: linear-gradient(90deg,#6366f1,#34d399)"></div>
+       style="width:6.25%; background: linear-gradient(90deg,#6366f1,#34d399)"></div>
 
   <!-- Top bar -->
   <div class="absolute top-4 right-5 flex items-center gap-3 z-10">
-    <span id="counter" class="text-xs font-mono text-gray-500">1 / 17</span>
+    <span id="counter" class="text-xs font-mono text-gray-500">1 / 16</span>
     <button id="fs-btn" title="Toggle fullscreen"
             class="text-gray-400 hover:text-white transition-colors p-1.5 rounded-full"
             style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08)">
@@ -374,11 +374,11 @@ import Layout from '../layouts/Layout.astro';
         <p class="text-gray-400 text-sm mb-6">F1-score on <em class="text-gray-300">good credit class</em> · Paper target: <span class="text-purple-400 font-mono font-bold">0.8489</span> (RNN+AGSS over)</p>
         <div class="grid md:grid-cols-2 gap-6">
           <div>
-            <p class="text-xs text-gray-500 uppercase tracking-wider mb-3">Oversampling — All models + AGSS</p>
+            <p class="text-xs text-gray-500 uppercase tracking-wider mb-3">Oversampling — All models + AGSS &nbsp;<span class="text-accent-400">★ tuned</span></p>
             <div class="space-y-2">
               {[
-                {m:'XGBoost',    f1:0.8386,color:'#10b981'},
-                {m:'LightGBM',   f1:0.8343,color:'#34d399'},
+                {m:'LightGBM ★', f1:0.8483,color:'#34d399'},
+                {m:'XGBoost ★',  f1:0.8386,color:'#10b981'},
                 {m:'RNN',        f1:0.8294,color:'#a78bfa'},
                 {m:'LSTM',       f1:0.8286,color:'#818cf8'},
                 {m:'Transformer',f1:0.8241,color:'#c084fc'},
@@ -394,6 +394,7 @@ import Layout from '../layouts/Layout.astro';
                 </div>
               ))}
             </div>
+            <p class="text-xs text-gray-500 mt-2">★ Tuned: LightGBM <span class="text-accent-400 font-mono">0.8483</span> — gap <span class="text-accent-400">−0.07%</span> from paper (0.8489)</p>
           </div>
           <div>
             <p class="text-xs text-gray-500 uppercase tracking-wider mb-3">Undersampling (selected)</p>
@@ -469,53 +470,7 @@ import Layout from '../layouts/Layout.astro';
       </div>
     </section>
 
-    <!-- ───────── SLIDE 12: Threshold Discovery ───────── -->
-    <section class="slide">
-      <div class="max-w-4xl mx-auto px-10 w-full">
-        <p class="slide-label text-rose-400">Key Discovery</p>
-        <h2 class="slide-h2">Threshold Tuning: 0.03 → 0.82</h2>
-        <p class="text-gray-400 text-sm mb-8">Default threshold=0.5 on LSTM undersampling produced almost useless predictions. A post-hoc sweep revealed the real operating point.</p>
-        <div class="grid md:grid-cols-3 gap-5 mb-6">
-          <div class="glass rounded-2xl p-6 border-rose-500/20 bg-rose-500/5 text-center">
-            <p class="text-xs text-rose-400 font-semibold uppercase tracking-wider mb-3">Default threshold = 0.5</p>
-            <p class="text-6xl font-extrabold font-mono text-rose-400">0.03</p>
-            <p class="text-sm text-gray-500 mt-2">F1-score</p>
-            <p class="text-xs text-gray-600 mt-1">Model predicts "not fraud" for nearly everything</p>
-          </div>
-          <div class="flex items-center justify-center">
-            <div class="text-center">
-              <p class="text-4xl text-gray-600 mb-2">→</p>
-              <p class="text-xs text-gray-500">sweep 0.1→0.99</p>
-              <p class="text-xs text-gray-500 mt-1">optimal at</p>
-              <p class="text-lg font-mono font-bold text-white mt-1">0.985</p>
-            </div>
-          </div>
-          <div class="glass rounded-2xl p-6 border-accent-500/20 bg-accent-500/5 text-center">
-            <p class="text-xs text-accent-400 font-semibold uppercase tracking-wider mb-3">Tuned threshold = 0.985</p>
-            <p class="text-6xl font-extrabold font-mono text-accent-400">0.82</p>
-            <p class="text-sm text-gray-500 mt-2">F1-score</p>
-            <p class="text-xs text-gray-600 mt-1">LSTM + AGSS undersampling, Credit Card</p>
-          </div>
-        </div>
-        <div class="grid grid-cols-3 gap-4">
-          {[
-            {c:'text-amber-400',b:'border-amber-500/20 bg-amber-500/5', title:'LightGBM optimal: 0.20',
-              desc:'Counterintuitively low — reflects extreme imbalance (0.17%). Model needs a low bar to flag fraud.'},
-            {c:'text-primary-400',b:'border-primary-500/20 bg-primary-500/5', title:'RNN optimal: 0.90',
-              desc:'High threshold filters out uncertain predictions, boosting precision on this harder undersampling task.'},
-            {c:'text-rose-400',b:'border-rose-500/20 bg-rose-500/5', title:'Rule: never use 0.5',
-              desc:'On imbalanced data, the default threshold is almost always wrong. Always sweep after training.'},
-          ].map(item => (
-            <div class={`glass rounded-xl p-4 ${item.b}`}>
-              <p class={`text-xs font-bold mb-1 ${item.c}`}>{item.title}</p>
-              <p class="text-xs text-gray-400">{item.desc}</p>
-            </div>
-          ))}
-        </div>
-      </div>
-    </section>
-
-    <!-- ───────── SLIDE 13: Transformer Deep Dive ───────── -->
+    <!-- ───────── SLIDE 12: Transformer Deep Dive ───────── -->
     <section class="slide">
       <div class="max-w-4xl mx-auto px-10 w-full">
         <p class="slide-label text-purple-400">Deep Dive</p>
@@ -581,8 +536,12 @@ import Layout from '../layouts/Layout.astro';
               </div>
             </div>
             <div class="glass rounded-xl p-4 flex justify-between items-center">
-              <div><p class="font-semibold text-white">XGBoost + AGSS</p><p class="text-xs text-gray-400">threshold = 0.50</p></div>
+              <div><p class="font-semibold text-white">XGBoost + AGSS</p><p class="text-xs text-gray-400">threshold = 0.50 · Credit Card</p></div>
               <div class="text-right"><p class="font-mono font-bold text-emerald-400 text-lg">0.8656</p><p class="text-xs text-gray-500">+3.9% vs paper</p></div>
+            </div>
+            <div class="glass rounded-xl p-4 flex justify-between items-center border-accent-500/20 bg-accent-500/5">
+              <div><p class="font-semibold text-white">LightGBM + AGSS</p><p class="text-xs text-gray-400">threshold = 0.95 · German Credit (tuned)</p></div>
+              <div class="text-right"><p class="font-mono font-bold text-accent-400 text-lg">0.8483</p><p class="text-xs text-gray-500">−0.07% from paper</p></div>
             </div>
           </div>
           <div class="glass rounded-2xl p-5">
@@ -612,7 +571,7 @@ import Layout from '../layouts/Layout.astro';
     <section class="slide">
       <div class="max-w-4xl mx-auto px-10 w-full">
         <p class="slide-label text-amber-400">Findings</p>
-        <h2 class="slide-h2">What We Learned</h2>
+        <h2 class="slide-h2">What We Did</h2>
         <div class="grid md:grid-cols-2 gap-4">
           {[
             {icon:'✅',c:'text-accent-400',b:'border-accent-500/20 bg-accent-500/5',
@@ -620,7 +579,7 @@ import Layout from '../layouts/Layout.astro';
               desc:'~2% gap across all deep learning runs — expected, because the paper withholds hidden sizes, learning rates, and exact curvature parameters. MPS GPU non-determinism adds additional variance.'},
             {icon:'🚀',c:'text-primary-400',b:'border-primary-500/20 bg-primary-500/5',
               title:'AGSS generalises beyond deep learning',
-              desc:'Sampling algorithm transfers directly to gradient boosting — achieving +4.8% over the paper\'s best deep learning result.'},
+              desc:'Gradient boosting with AGSS beats the paper on Credit Card (+4.8%) and nearly matches it on German (−0.07%) after hyperparameter tuning — from a 1.7% gap down to virtually zero.'},
             {icon:'🎯',c:'text-amber-400',b:'border-amber-500/20 bg-amber-500/5',
               title:'Threshold tuning is critical',
               desc:'Post-hoc sweep (0.1→0.99) recovers F1 from 0.03 to 0.82 on undersampling. LightGBM optimal at 0.20 — never trust default 0.5 on imbalanced data.'},

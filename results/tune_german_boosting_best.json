@@ -1,0 +1,15 @@
+{
+  "f1": 0.8483,
+  "precision": 0.7634,
+  "recall": 0.9543,
+  "roc_auc": 0.7253,
+  "threshold": 0.95,
+  "algo": "LightGBM",
+  "eps": 0.8,
+  "num_leaves": 127.0,
+  "min_child_samples": 5.0,
+  "lr": 0.03,
+  "runtime_s": 74.5,
+  "max_depth": NaN,
+  "min_child_weight": NaN
+}
