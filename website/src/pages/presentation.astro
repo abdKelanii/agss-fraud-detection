@@ -8,11 +8,11 @@ import Layout from '../layouts/Layout.astro';
 
   <!-- Progress bar -->
   <div id="progress" class="absolute top-0 left-0 h-[3px] z-10 transition-all duration-500"
-       style="width:6.67%; background: linear-gradient(90deg,#6366f1,#34d399)"></div>
+       style="width:5.88%; background: linear-gradient(90deg,#6366f1,#34d399)"></div>
 
   <!-- Top bar -->
   <div class="absolute top-4 right-5 flex items-center gap-3 z-10">
-    <span id="counter" class="text-xs font-mono text-gray-500">1 / 15</span>
+    <span id="counter" class="text-xs font-mono text-gray-500">1 / 17</span>
     <button id="fs-btn" title="Toggle fullscreen"
             class="text-gray-400 hover:text-white transition-colors p-1.5 rounded-full"
             style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08)">
@@ -52,7 +52,7 @@ import Layout from '../layouts/Layout.astro';
           + extension to gradient boosting models
         </p>
         <div class="flex flex-wrap justify-center gap-3">
-          {[['6 Models','#818cf8'],['2 Datasets','#34d399'],['12+ Experiments','#f59e0b'],['Best: +4.8% vs Paper','#34d399']].map(([l,c]) => (
+          {[['6 Models','#818cf8'],['2 Datasets','#34d399'],['17 Experiments','#f59e0b'],['Best: +4.8% vs Paper','#34d399']].map(([l,c]) => (
             <span class="glass px-4 py-2 rounded-full text-sm font-semibold" style={`color:${c}`}>{l}</span>
           ))}
         </div>
@@ -101,19 +101,20 @@ import Layout from '../layouts/Layout.astro';
 
     <!-- ───────── SLIDE 3: Existing Methods ───────── -->
     <section class="slide">
-      <div class="max-w-4xl mx-auto px-10 w-full">
+      <div class="max-w-5xl mx-auto px-10 w-full">
         <p class="slide-label text-amber-400">Background</p>
         <h2 class="slide-h2">Oversampling Approaches</h2>
-        <div class="grid md:grid-cols-3 gap-4 mb-6">
+        <div class="grid grid-cols-4 gap-4 mb-6">
           {[
-            {name:'SMOTE',  pro:'Simple & fast',             con:'Generates samples near noisy boundary', accent:false},
-            {name:'ADASYN', pro:'Focuses on hard samples',   con:'Amplifies noisy boundary regions',      accent:false},
-            {name:'AGSS',   pro:'Cluster-aware, high prec.', con:'Slower — but far more targeted',        accent:true },
+            {name:'ROS',    pro:'Fastest baseline',           con:'Pure duplication — no new diversity',   accent:false},
+            {name:'SMOTE',  pro:'Simple interpolation',       con:'Generates near noisy boundary points',  accent:false},
+            {name:'ADASYN', pro:'Focuses on hard samples',    con:'Amplifies noisy boundary regions',      accent:false},
+            {name:'AGSS',   pro:'Cluster-aware, high prec.',  con:'Slower — but far more targeted',        accent:true },
           ].map(m => (
-            <div class={`glass rounded-2xl p-6 ${m.accent ? 'border-accent-500/30 bg-accent-500/5' : ''}`}>
-              <p class={`text-2xl font-extrabold mb-3 ${m.accent ? 'text-accent-400' : 'text-gray-300'}`}>{m.name}</p>
-              <p class="text-sm text-gray-300 mb-2">✓ {m.pro}</p>
-              <p class="text-sm text-gray-500">✗ {m.con}</p>
+            <div class={`glass rounded-2xl p-5 ${m.accent ? 'border-accent-500/30 bg-accent-500/5' : ''}`}>
+              <p class={`text-xl font-extrabold mb-3 ${m.accent ? 'text-accent-400' : 'text-gray-300'}`}>{m.name}</p>
+              <p class="text-xs text-gray-300 mb-2">✓ {m.pro}</p>
+              <p class="text-xs text-gray-500">✗ {m.con}</p>
             </div>
           ))}
         </div>
@@ -133,14 +134,12 @@ import Layout from '../layouts/Layout.astro';
         <p class="slide-label text-accent-400">Visual Proof</p>
         <h2 class="slide-h2" style="margin-bottom:1rem">SMOTE vs AGSS — Same Data, Different Samples</h2>
 
-        <!-- 2-panel main image -->
         <div class="glass rounded-2xl overflow-hidden mb-4" style="border-color:rgba(255,255,255,0.08)">
           <img src="/figures/compare_smote_agss_2panel.png"
                alt="SMOTE vs AGSS visual comparison"
                class="w-full object-contain" style="max-height:340px" />
         </div>
 
-        <!-- 3-line callout row -->
         <div class="grid grid-cols-3 gap-4">
           <div class="glass rounded-xl p-4" style="border-color:rgba(251,191,36,0.2);background:rgba(251,191,36,0.04)">
             <p class="text-xs font-bold text-amber-400 mb-1">SMOTE problem</p>
@@ -196,9 +195,9 @@ import Layout from '../layouts/Layout.astro';
             <p class="text-xs text-gray-500 uppercase tracking-wider mb-3">Paper's Reported Results</p>
             <div class="space-y-3">
               {[
-                {dataset:'Credit Card', model:'LSTM + AGSS', f1:'0.8333', note:'Oversampling',   color:'text-primary-400'},
-                {dataset:'German',      model:'RNN + AGSS',  f1:'0.8489', note:'Oversampling',   color:'text-purple-400'},
-                {dataset:'German',      model:'RNN + AGSS',  f1:'0.8601', note:'Undersampling ★',color:'text-accent-400'},
+                {dataset:'Credit Card', model:'LSTM + AGSS', f1:'0.8333', note:'Oversampling',    color:'text-primary-400'},
+                {dataset:'German',      model:'RNN + AGSS',  f1:'0.8489', note:'Oversampling',    color:'text-purple-400'},
+                {dataset:'German',      model:'RNN + AGSS',  f1:'0.8601', note:'Undersampling ★', color:'text-accent-400'},
               ].map(r => (
                 <div class="glass rounded-xl px-4 py-3 flex justify-between items-center">
                   <div>
@@ -209,6 +208,7 @@ import Layout from '../layouts/Layout.astro';
                 </div>
               ))}
             </div>
+            <p class="text-xs text-gray-600 mt-3">★ German uses F1 on good-credit class (majority) — not fraud</p>
           </div>
           <div class="glass rounded-2xl p-6">
             <p class="text-xs text-gray-500 uppercase tracking-wider mb-4">What We Did</p>
@@ -229,7 +229,7 @@ import Layout from '../layouts/Layout.astro';
       </div>
     </section>
 
-    <!-- ───────── SLIDE 5: AGSS Algorithm ───────── -->
+    <!-- ───────── SLIDE 7: AGSS Algorithm ───────── -->
     <section class="slide">
       <div class="max-w-4xl mx-auto px-10 w-full">
         <p class="slide-label text-accent-400">Core Algorithm</p>
@@ -243,7 +243,7 @@ import Layout from '../layouts/Layout.astro';
               ['4','Curvature interpolation',   'x_syn = p + α(q−p) + γ·sin(θ)·perp(q−p)','text-amber-400'],
               ['5','Combine & train',           'Merge synthetic + real data — for this fold only','text-rose-400'],
             ].map(([n,title,desc,c]) => (
-              <div class={`glass rounded-xl px-4 py-3 flex gap-3 border-l-2`} style={`border-color:${c.replace('text-','').replace('-400','')}`}>
+              <div class="glass rounded-xl px-4 py-3 flex gap-3 border-l-2 border-white/10">
                 <span class={`font-extrabold text-lg w-5 flex-shrink-0 ${c}`}>{n}</span>
                 <div>
                   <p class={`text-sm font-bold ${c}`}>{title}</p>
@@ -276,7 +276,7 @@ import Layout from '../layouts/Layout.astro';
       </div>
     </section>
 
-    <!-- ───────── SLIDE 6: Setup ───────── -->
+    <!-- ───────── SLIDE 8: Setup ───────── -->
     <section class="slide">
       <div class="max-w-4xl mx-auto px-10 w-full">
         <p class="slide-label text-primary-400">Methodology</p>
@@ -329,23 +329,25 @@ import Layout from '../layouts/Layout.astro';
       </div>
     </section>
 
-    <!-- ───────── SLIDE 7: Credit Card Results ───────── -->
+    <!-- ───────── SLIDE 9: Credit Card Results ───────── -->
     <section class="slide">
       <div class="max-w-4xl mx-auto px-10 w-full">
         <p class="slide-label text-primary-400">Phase 1 Results</p>
         <h2 class="slide-h2">Credit Card Dataset</h2>
-        <p class="text-gray-400 text-sm mb-6">F1-score on fraud class · Paper target: <span class="text-primary-400 font-mono font-bold">0.8333</span> (LSTM+AGSS)</p>
+        <p class="text-gray-400 text-sm mb-6">F1-score on fraud class · Paper target: <span class="text-primary-400 font-mono font-bold">0.8333</span> (LSTM+AGSS oversampling)</p>
         <div class="space-y-3">
           {[
-            {model:'LightGBM + AGSS',  f1:0.8734, color:'#34d399', delta:'+4.8%'},
-            {model:'XGBoost + AGSS',   f1:0.8656, color:'#10b981', delta:'+3.9%'},
-            {model:'LSTM + AGSS',      f1:0.8236, color:'#818cf8', delta:'-1.2%'},
-            {model:'RNN + AGSS',       f1:0.8077, color:'#a78bfa', delta:'-3.1%'},
-            {model:'GAN + AGSS',       f1:0.7497, color:'#f59e0b', delta:'-10.0%'},
-            {model:'Transformer+AGSS', f1:0.3922, color:'#c084fc', delta:'tuned→0.82'},
+            {model:'LightGBM + AGSS',  f1:0.8734, color:'#34d399', delta:'+4.8%',    note:'extension'},
+            {model:'XGBoost + AGSS',   f1:0.8656, color:'#10b981', delta:'+3.9%',    note:'extension'},
+            {model:'LSTM + AGSS',      f1:0.8236, color:'#818cf8', delta:'-1.2%',    note:'over'},
+            {model:'RNN + AGSS',       f1:0.8077, color:'#a78bfa', delta:'-3.1%',    note:'over'},
+            {model:'GAN + AGSS',       f1:0.7497, color:'#f59e0b', delta:'-10.0%',   note:'over'},
+            {model:'Transformer+AGSS', f1:0.3922, color:'#c084fc', delta:'untuned ★', note:'over'},
           ].map(r => (
             <div class="flex items-center gap-4">
-              <p class="w-44 text-sm text-gray-200 flex-shrink-0 truncate">{r.model}</p>
+              <div class="w-44 flex-shrink-0 flex items-center gap-2">
+                <p class="text-sm text-gray-200 truncate">{r.model}</p>
+              </div>
               <div class="flex-1 relative h-8 glass rounded-lg overflow-hidden">
                 <div class="h-full rounded-lg" style={`width:${r.f1*100}%; background:${r.color}22; border-right:2px solid ${r.color}`}></div>
                 <div class="absolute inset-0 flex items-center px-3">
@@ -353,20 +355,23 @@ import Layout from '../layouts/Layout.astro';
                 </div>
                 <div class="absolute top-0 bottom-0 w-px bg-white/40" style="left:83.33%"></div>
               </div>
-              <span class={`text-xs font-bold w-20 text-right ${r.delta.startsWith('+') ? 'text-accent-400' : 'text-gray-500'}`}>{r.delta}</span>
+              <span class={`text-xs font-bold w-24 text-right flex-shrink-0 ${r.delta.startsWith('+') ? 'text-accent-400' : r.delta === 'untuned ★' ? 'text-gray-500 italic' : 'text-gray-500'}`}>{r.delta}</span>
             </div>
           ))}
         </div>
-        <p class="text-xs text-gray-500 mt-3">Vertical line = paper LSTM+AGSS target (0.8333)</p>
+        <div class="flex gap-6 mt-4">
+          <p class="text-xs text-gray-500">Vertical line = paper target (0.8333)</p>
+          <p class="text-xs text-gray-600">★ Transformer on CC had no threshold sweep — see slide 13 for tuned result on German</p>
+        </div>
       </div>
     </section>
 
-    <!-- ───────── SLIDE 8: German Results ───────── -->
+    <!-- ───────── SLIDE 10: German Results ───────── -->
     <section class="slide">
       <div class="max-w-4xl mx-auto px-10 w-full">
         <p class="slide-label text-purple-400">Phase 2 Results</p>
         <h2 class="slide-h2">German Credit Dataset</h2>
-        <p class="text-gray-400 text-sm mb-6">F1-score on good class · Paper target: <span class="text-purple-400 font-mono font-bold">0.8489</span> (RNN+AGSS)</p>
+        <p class="text-gray-400 text-sm mb-6">F1-score on <em class="text-gray-300">good credit class</em> · Paper target: <span class="text-purple-400 font-mono font-bold">0.8489</span> (RNN+AGSS over)</p>
         <div class="grid md:grid-cols-2 gap-6">
           <div>
             <p class="text-xs text-gray-500 uppercase tracking-wider mb-3">Oversampling — All models + AGSS</p>
@@ -402,24 +407,120 @@ import Layout from '../layouts/Layout.astro';
                 <div class={`glass rounded-xl px-4 py-2.5 flex justify-between items-center ${r.best ? 'border-purple-500/30 bg-purple-500/5' : ''}`}>
                   <div>
                     <p class="text-sm font-semibold text-gray-200">{r.m} + {r.s}</p>
-                    <p class="text-xs text-gray-500">{((r.f1/0.8489-1)*100).toFixed(1)}% vs paper</p>
+                    <p class="text-xs text-gray-500">{((r.f1/0.8489-1)*100).toFixed(1)}% vs paper over</p>
                   </div>
                   <p class="font-mono font-bold text-purple-400">{r.f1.toFixed(4)}</p>
                 </div>
               ))}
             </div>
-            <p class="text-xs text-gray-500 mt-3">Paper under target: 0.8601 — gap ≈ 3.2%</p>
+            <p class="text-xs text-gray-500 mt-3">Paper under target: 0.8601 — best gap ≈ 3.2%</p>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- ───────── SLIDE 9: Transformer ───────── -->
+    <!-- ───────── SLIDE 11: GAN Results ───────── -->
+    <section class="slide">
+      <div class="max-w-4xl mx-auto px-10 w-full">
+        <p class="slide-label text-amber-400">GAN Results</p>
+        <h2 class="slide-h2">GAN + AGSS: The Biggest Sampling Gap</h2>
+        <p class="text-gray-400 text-sm mb-7">On Credit Card, AGSS gives GAN an F1 <span class="text-amber-400 font-bold">+0.34 higher</span> than SMOTE — the largest sampler gap in the entire project.</p>
+        <div class="grid md:grid-cols-2 gap-6">
+          <div>
+            <p class="text-xs text-gray-500 uppercase tracking-wider mb-4">Credit Card — GAN F1 by Sampler</p>
+            <div class="space-y-3">
+              {[
+                {s:'AGSS',   f1:0.7497, color:'#f59e0b', best:true },
+                {s:'SMOTE',  f1:0.4054, color:'#6b7280', best:false},
+                {s:'ROS',    f1:0.3713, color:'#6b7280', best:false},
+                {s:'ADASYN', f1:0.3660, color:'#6b7280', best:false},
+              ].map(r => (
+                <div class="flex items-center gap-3">
+                  <span class={`w-16 text-sm font-semibold flex-shrink-0 ${r.best ? 'text-amber-400' : 'text-gray-500'}`}>{r.s}</span>
+                  <div class="flex-1 relative h-7 glass rounded-lg overflow-hidden">
+                    <div class="h-full rounded-lg" style={`width:${r.f1*100}%; background:${r.color}${r.best ? '33' : '18'}; border-right:2px solid ${r.color}`}></div>
+                  </div>
+                  <span class="font-mono text-sm font-bold w-14 text-right" style={`color:${r.color}`}>{r.f1.toFixed(4)}</span>
+                </div>
+              ))}
+            </div>
+            <div class="mt-4 glass rounded-xl p-3 border-amber-500/20 bg-amber-500/5">
+              <p class="text-xs text-amber-400 font-semibold">Why such a large gap?</p>
+              <p class="text-xs text-gray-400 mt-1">GAN's generator trains on the synthetic distribution. SMOTE's noisy samples corrupt the generator's learned space — AGSS's cluster-pure samples let it converge properly.</p>
+            </div>
+          </div>
+          <div class="space-y-4">
+            <div class="glass rounded-2xl p-5 border-amber-500/20 bg-amber-500/5">
+              <p class="text-sm font-bold text-amber-400 mb-3">Best GAN Config (Credit Card)</p>
+              <div class="grid grid-cols-2 gap-3">
+                {[['F1','0.7497','text-amber-400'],['ROC-AUC','0.9574','text-primary-400'],['Precision','0.8367','text-accent-400'],['Threshold','0.40','text-gray-300']].map(([l,v,c]) => (
+                  <div><p class={`text-xl font-bold font-mono ${c}`}>{v}</p><p class="text-xs text-gray-500">{l}</p></div>
+                ))}
+              </div>
+              <p class="text-xs text-gray-500 mt-3">hidden=128, epochs=100, lr=5e-5</p>
+            </div>
+            <div class="glass rounded-xl p-4">
+              <p class="text-xs text-gray-500 uppercase tracking-wider mb-2">German Credit — GAN + AGSS</p>
+              <p class="text-3xl font-extrabold font-mono text-amber-400">0.8235</p>
+              <p class="text-xs text-gray-500 mt-1">All 4 samplers converge to ~0.82 — mild 30% imbalance means any sampler works on German</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ───────── SLIDE 12: Threshold Discovery ───────── -->
+    <section class="slide">
+      <div class="max-w-4xl mx-auto px-10 w-full">
+        <p class="slide-label text-rose-400">Key Discovery</p>
+        <h2 class="slide-h2">Threshold Tuning: 0.03 → 0.82</h2>
+        <p class="text-gray-400 text-sm mb-8">Default threshold=0.5 on LSTM undersampling produced almost useless predictions. A post-hoc sweep revealed the real operating point.</p>
+        <div class="grid md:grid-cols-3 gap-5 mb-6">
+          <div class="glass rounded-2xl p-6 border-rose-500/20 bg-rose-500/5 text-center">
+            <p class="text-xs text-rose-400 font-semibold uppercase tracking-wider mb-3">Default threshold = 0.5</p>
+            <p class="text-6xl font-extrabold font-mono text-rose-400">0.03</p>
+            <p class="text-sm text-gray-500 mt-2">F1-score</p>
+            <p class="text-xs text-gray-600 mt-1">Model predicts "not fraud" for nearly everything</p>
+          </div>
+          <div class="flex items-center justify-center">
+            <div class="text-center">
+              <p class="text-4xl text-gray-600 mb-2">→</p>
+              <p class="text-xs text-gray-500">sweep 0.1→0.99</p>
+              <p class="text-xs text-gray-500 mt-1">optimal at</p>
+              <p class="text-lg font-mono font-bold text-white mt-1">0.985</p>
+            </div>
+          </div>
+          <div class="glass rounded-2xl p-6 border-accent-500/20 bg-accent-500/5 text-center">
+            <p class="text-xs text-accent-400 font-semibold uppercase tracking-wider mb-3">Tuned threshold = 0.985</p>
+            <p class="text-6xl font-extrabold font-mono text-accent-400">0.82</p>
+            <p class="text-sm text-gray-500 mt-2">F1-score</p>
+            <p class="text-xs text-gray-600 mt-1">LSTM + AGSS undersampling, Credit Card</p>
+          </div>
+        </div>
+        <div class="grid grid-cols-3 gap-4">
+          {[
+            {c:'text-amber-400',b:'border-amber-500/20 bg-amber-500/5', title:'LightGBM optimal: 0.20',
+              desc:'Counterintuitively low — reflects extreme imbalance (0.17%). Model needs a low bar to flag fraud.'},
+            {c:'text-primary-400',b:'border-primary-500/20 bg-primary-500/5', title:'RNN optimal: 0.90',
+              desc:'High threshold filters out uncertain predictions, boosting precision on this harder undersampling task.'},
+            {c:'text-rose-400',b:'border-rose-500/20 bg-rose-500/5', title:'Rule: never use 0.5',
+              desc:'On imbalanced data, the default threshold is almost always wrong. Always sweep after training.'},
+          ].map(item => (
+            <div class={`glass rounded-xl p-4 ${item.b}`}>
+              <p class={`text-xs font-bold mb-1 ${item.c}`}>{item.title}</p>
+              <p class="text-xs text-gray-400">{item.desc}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <!-- ───────── SLIDE 13: Transformer Deep Dive ───────── -->
     <section class="slide">
       <div class="max-w-4xl mx-auto px-10 w-full">
         <p class="slide-label text-purple-400">Deep Dive</p>
         <h2 class="slide-h2">Transformer: Closing the Gap</h2>
-        <p class="text-gray-400 text-sm mb-7">Default d_model=32 left a 14.7% gap. Grid search recovered most of it.</p>
+        <p class="text-gray-400 text-sm mb-7">On German Credit, default d_model=32 left a 14.7% gap. Grid search recovered most of it.</p>
         <div class="grid md:grid-cols-2 gap-6">
           <div class="space-y-4">
             <div class="glass rounded-2xl p-5 border-rose-500/20 bg-rose-500/5">
@@ -457,7 +558,7 @@ import Layout from '../layouts/Layout.astro';
       </div>
     </section>
 
-    <!-- ───────── SLIDE 10: Extension ───────── -->
+    <!-- ───────── SLIDE 14: Extension ───────── -->
     <section class="slide">
       <div class="max-w-4xl mx-auto px-10 w-full">
         <p class="slide-label text-accent-400">Extension Beyond Paper</p>
@@ -507,7 +608,7 @@ import Layout from '../layouts/Layout.astro';
       </div>
     </section>
 
-    <!-- ───────── SLIDE 11: Key Findings ───────── -->
+    <!-- ───────── SLIDE 15: Key Findings ───────── -->
     <section class="slide">
       <div class="max-w-4xl mx-auto px-10 w-full">
         <p class="slide-label text-amber-400">Findings</p>
@@ -516,16 +617,16 @@ import Layout from '../layouts/Layout.astro';
           {[
             {icon:'✅',c:'text-accent-400',b:'border-accent-500/20 bg-accent-500/5',
               title:'Successful reproduction',
-              desc:'~2% gap across 8 deep learning runs — within expected variance on Apple MPS GPU (non-deterministic).'},
+              desc:'~2% gap across all deep learning runs — expected, because the paper withholds hidden sizes, learning rates, and exact curvature parameters. MPS GPU non-determinism adds additional variance.'},
             {icon:'🚀',c:'text-primary-400',b:'border-primary-500/20 bg-primary-500/5',
-              title:'AGSS generalises',
+              title:'AGSS generalises beyond deep learning',
               desc:'Sampling algorithm transfers directly to gradient boosting — achieving +4.8% over the paper\'s best deep learning result.'},
             {icon:'🎯',c:'text-amber-400',b:'border-amber-500/20 bg-amber-500/5',
               title:'Threshold tuning is critical',
-              desc:'Post-hoc sweep (0.1→0.99) adds 5–10% F1 vs default 0.50. LightGBM optimal at 0.20 — not the conventional 0.50.'},
+              desc:'Post-hoc sweep (0.1→0.99) recovers F1 from 0.03 to 0.82 on undersampling. LightGBM optimal at 0.20 — never trust default 0.5 on imbalanced data.'},
             {icon:'🔬',c:'text-purple-400',b:'border-purple-500/20 bg-purple-500/5',
               title:'Architecture must fit data scale',
-              desc:'Transformer needed d_model=128 (not 32) to match deep learning. Closed gap from 14.7% to 2.5% with hyperparameter tuning.'},
+              desc:'Transformer needed d_model=128 (not 32) for German Credit. GAN needs clean AGSS samples to converge — +0.34 F1 over SMOTE on Credit Card.'},
           ].map(item => (
             <div class={`glass rounded-2xl p-5 ${item.b}`}>
               <div class="flex gap-3">
@@ -541,7 +642,7 @@ import Layout from '../layouts/Layout.astro';
       </div>
     </section>
 
-    <!-- ───────── SLIDE 12: Best Result ───────── -->
+    <!-- ───────── SLIDE 16: Best Result ───────── -->
     <section class="slide">
       <div class="max-w-3xl mx-auto px-10 w-full text-center">
         <p class="slide-label text-accent-400">Best Result</p>
@@ -565,7 +666,7 @@ import Layout from '../layouts/Layout.astro';
       </div>
     </section>
 
-    <!-- ───────── SLIDE 13: Conclusion ───────── -->
+    <!-- ───────── SLIDE 17: Conclusion ───────── -->
     <section class="slide">
       <div class="max-w-3xl mx-auto px-10 w-full text-center">
         <p class="slide-label text-primary-400">Conclusion</p>
@@ -576,10 +677,10 @@ import Layout from '../layouts/Layout.astro';
         </p>
         <div class="flex justify-center gap-4 mb-8 flex-wrap">
           {[
-            {label:'Paper reproduced',val:'✓',     c:'text-accent-400'},
-            {label:'Best F1 (CC)',    val:'0.8734', c:'text-accent-400'},
-            {label:'vs Paper',        val:'+4.8%',  c:'text-accent-400'},
-            {label:'Experiments',     val:'12+',    c:'text-primary-400'},
+            {label:'Paper reproduced', val:'✓',     c:'text-accent-400'},
+            {label:'Best F1 (CC)',     val:'0.8734', c:'text-accent-400'},
+            {label:'vs Paper',         val:'+4.8%',  c:'text-accent-400'},
+            {label:'Experiments',      val:'17+',    c:'text-primary-400'},
           ].map(item => (
             <div class="glass rounded-xl px-6 py-4 text-center">
               <p class={`text-3xl font-extrabold font-mono ${item.c}`}>{item.val}</p>
@@ -626,14 +727,12 @@ import Layout from '../layouts/Layout.astro';
   .slide-label { font-size:.65rem; font-weight:700; text-transform:uppercase; letter-spacing:.1em; margin-bottom:.5rem; }
   .slide-h2 { font-size:2.25rem; font-weight:800; color:white; margin-bottom:1.5rem; line-height:1.2; }
 
-  /* ── Deck enter: scales up + fades in from a slight lift ── */
   @keyframes deckIn {
     from { opacity:0; transform:scale(0.95) translateY(20px); }
     to   { opacity:1; transform:scale(1)    translateY(0);    }
   }
   #deck { animation: deckIn .6s cubic-bezier(.16,1,.3,1) both; }
 
-  /* ── Slide base ── */
   .slide {
     position: absolute;
     inset: 0;
@@ -647,14 +746,12 @@ import Layout from '../layouts/Layout.astro';
     will-change: transform, opacity;
   }
 
-  /* Final resting state */
   .slide.active {
     opacity: 1;
     transform: translateX(0) scale(1);
     pointer-events: all;
   }
 
-  /* ── Progress bar glow pulse on slide change ── */
   @keyframes barPulse {
     0%   { box-shadow: 0 0 0   rgba(52,211,153,0);   }
     40%  { box-shadow: 0 0 12px rgba(52,211,153,0.7); }
@@ -662,7 +759,6 @@ import Layout from '../layouts/Layout.astro';
   }
   #progress.pulse { animation: barPulse .55s ease forwards; }
 
-  /* ── Nav button press effect ── */
   #btn-prev:active, #btn-next:active { transform: scale(0.88); }
   #btn-prev, #btn-next { transition: transform .12s ease, opacity .2s ease, background .2s ease; }
 </style>
@@ -680,17 +776,14 @@ import Layout from '../layouts/Layout.astro';
   const btnNext    = document.getElementById('btn-next') as HTMLButtonElement;
   const deck       = document.getElementById('deck')!;
 
-  // ── Build dot indicators ──────────────────────────────────────────────────
   slides.forEach((_, i) => {
     const d = document.createElement('button');
     d.addEventListener('click', () => goTo(i));
     dotsEl.appendChild(d);
   });
 
-  // ── Update progress / counter / dots ─────────────────────────────────────
   function updateUI() {
     progressEl.style.width = `${((cur + 1) / total) * 100}%`;
-    // Progress bar glow pulse
     progressEl.classList.remove('pulse');
     void progressEl.offsetWidth;
     progressEl.classList.add('pulse');
@@ -706,7 +799,6 @@ import Layout from '../layouts/Layout.astro';
     });
   }
 
-  // ── Core transition: directional slide ───────────────────────────────────
   function goTo(n: number) {
     if (n === cur || n < 0 || n >= total || animating) return;
     animating = true;
@@ -718,21 +810,16 @@ import Layout from '../layouts/Layout.astro';
     const enterFrom = dir > 0 ? 'translateX(72px) scale(.97)' : 'translateX(-72px) scale(.97)';
     const exitTo    = dir > 0 ? 'translateX(-56px) scale(.97)' : 'translateX(56px) scale(.97)';
 
-    // 1 — Snap next slide to its off-screen start (no transition)
     nextEl.style.cssText = `opacity:0; transform:${enterFrom}; transition:none; pointer-events:none;`;
-    void nextEl.offsetWidth; // force paint
+    void nextEl.offsetWidth;
 
-    // 2 — Kick off both transitions on the next frame
     requestAnimationFrame(() => {
-      // Prev exits
       prevEl.style.cssText = `
         opacity:0;
         transform:${exitTo};
         transition: opacity .28s ease, transform .28s cubic-bezier(.4,0,1,1);
         pointer-events:none;
       `;
-
-      // Next enters
       nextEl.style.cssText = `
         opacity:1;
         transform:translateX(0) scale(1);
@@ -744,19 +831,15 @@ import Layout from '../layouts/Layout.astro';
     cur = n;
     updateUI();
 
-    // 3 — Clean up after animation: hand off to CSS class
     setTimeout(() => {
       prevEl.classList.remove('active');
-      prevEl.style.cssText = '';        // clear inline → CSS opacity:0 (hidden)
-
+      prevEl.style.cssText = '';
       nextEl.classList.add('active');
-      nextEl.style.cssText = '';        // clear inline → CSS opacity:1 (active)
-
+      nextEl.style.cssText = '';
       animating = false;
     }, 540);
   }
 
-  // ── Exit button: animate deck out then navigate ───────────────────────────
   document.getElementById('exit-btn')?.addEventListener('click', e => {
     e.preventDefault();
     const href = (e.currentTarget as HTMLAnchorElement).href;
@@ -803,7 +886,6 @@ import Layout from '../layouts/Layout.astro';
     if (Math.abs(dx) > 48) dx > 0 ? goTo(cur + 1) : goTo(cur - 1);
   });
 
-  // ── Fade keyboard hint ────────────────────────────────────────────────────
   setTimeout(() => {
     const h = document.getElementById('kbd-hint');
     if (h) h.style.opacity = '0';
