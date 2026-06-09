@@ -7,3 +7,7 @@ Configs to run: 18
 [01/18] d_model=64  epochs=50  lr=0.0005
     fold 1/5  F1@0.5=0.4476  ROC=0.9481
     fold 2/5  F1@0.5=0.4684  ROC=0.9592
+    fold 3/5  F1@0.5=0.5563  ROC=0.9657
+    fold 4/5  F1@0.5=0.5946  ROC=0.9458
+AGSS: multi-cluster eps at p20=4.380 → 30 clusters
+    fold 5/5  F1@0.5=0.0766  ROC=0.8813
